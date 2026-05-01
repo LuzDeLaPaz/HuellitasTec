@@ -13,7 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btnLogin.onclick = () => {
             modalLogin.style.display = 'flex';
             // Limpio errores y bordes al abrir el modal
-            if (loginError) loginError.textContent = '';
+            if (loginError) {
+                loginError.textContent = '';
+                loginError.style.cssText = 'display:none;';
+            }
             [$('usuario'), $('contrasena')].forEach(el => {
                 if (el) el.style.border = '';
             });
@@ -46,13 +49,19 @@ document.addEventListener('DOMContentLoaded', () => {
             [usuarioInput, contrasenaInput].forEach(el => {
                 if (el) el.style.border = '';
             });
-            if (loginError) loginError.textContent = '';
+            if (loginError) {
+                loginError.textContent = '';
+                loginError.style.cssText = 'display:none;';
+            }
 
             // Valido campos vacíos y marco cuál falta
             if (!usuario || !contrasena) {
                 if (!usuario    && usuarioInput)    usuarioInput.style.border    = '2px solid #E05555';
                 if (!contrasena && contrasenaInput) contrasenaInput.style.border = '2px solid #E05555';
-                if (loginError) loginError.textContent = 'Completa todos los campos';
+                if (loginError) {
+                    loginError.textContent = 'Completa todos los campos';
+                    loginError.style.cssText = 'display:block;color:#E05555;font-size:13px;font-weight:600;text-align:center;margin-top:6px;padding:8px 12px;background:#fff0f0;border:1.5px solid #ffb3b3;border-radius:8px;';
+                }
                 return;
             }
 
@@ -93,7 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Marco ambos inputs en rojo para indicar credenciales incorrectas
                 if (usuarioInput)    usuarioInput.style.border    = '2px solid #E05555';
                 if (contrasenaInput) contrasenaInput.style.border = '2px solid #E05555';
-                if (loginError)      loginError.textContent       = err.message;
+                if (loginError) {
+                    loginError.textContent = err.message;
+                    loginError.style.cssText = 'display:block;color:#E05555;font-size:13px;font-weight:600;text-align:center;margin-top:6px;padding:8px 12px;background:#fff0f0;border:1.5px solid #ffb3b3;border-radius:8px;';
+                }
 
                 // Restauro el botón a su estado original
                 loginSubmit.disabled    = false;
@@ -106,7 +118,10 @@ document.addEventListener('DOMContentLoaded', () => {
     [$('usuario'), $('contrasena')].forEach(inp => {
         inp?.addEventListener('input', () => {
             inp.style.border = '';
-            if (loginError) loginError.textContent = '';
+            if (loginError) {
+                loginError.textContent = '';
+                loginError.style.cssText = 'display:none;';
+            }
         });
     });
 
