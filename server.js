@@ -23,16 +23,16 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // ── Sirvo el frontend como archivos estáticos
-// En Render el frontend está en la carpeta 'frontend' al mismo nivel que 'backend'
+// frontend/ está dentro de la misma carpeta que server.js
 app.use(express.static(path.join(__dirname, 'frontend')));
 
 // ── Rutas principales
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend/public.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'public.html'));
 });
 
 app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend/admin.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'admin.html'));
 });
 
 // ── UptimeRobot: endpoint de health-check para que el servidor no duerma
