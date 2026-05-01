@@ -6,7 +6,7 @@ document.body.style.visibility = 'hidden';
 const usuarioGuardado = localStorage.getItem('nombreUsuario');
 if (!usuarioGuardado) {
     // Si no hay sesión lo mando al inicio
-    window.location.replace('public.html');
+    window.location.replace('/');
 } else {
     document.body.style.visibility = 'visible';
     const el = document.getElementById('nombreUsuario');
@@ -18,7 +18,7 @@ window.cerrarSesion = function () {
     localStorage.removeItem('logueado');
     localStorage.removeItem('nombreUsuario');
     localStorage.removeItem('rol');
-    window.location.replace('public.html');
+    window.location.replace('/');
 };
 
 
