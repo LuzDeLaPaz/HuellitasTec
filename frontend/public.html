@@ -1,401 +1,493 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HuellitasTec</title>
-    <!-- Estilos de la vista pública -->
-    <link rel="stylesheet" href="css/style_pub.css">
-</head>
-<body>
-    <!-- ── ENCABEZADO ── -->
-    <div class="titulo_figura">
+const BASE = window.location.origin;
 
-        <!-- Logo -->
-        <div class="logo">
-            <img src="imagenes/logo.png" alt="Logo" class="logo-img">
-        </div>
+document.addEventListener('DOMContentLoaded', () => {
+    const $ = id => document.getElementById(id);
 
-        <!-- Nombre y eslogan -->
-        <div class="titulo-texto">
-            <h1>HuellitasTec</h1>
-            <p>Dejando huellitas en tu corazón</p>
-        </div>
+    /* ── LOGIN ── */
+    const btnLogin    = $('btnLogin');
+    const modalLogin  = $('modalLogin');
+    const loginError  = $('loginError');
+    const loginSubmit = $('loginSubmit');
 
-        <!-- Botones de acceso: login abre el modal de admin, registro abre solicitud -->
-        <div class="login">
-            <button id="btnLogin" class="login-link">
-                <img src="imagenes/acceso.png" alt="Iniciar sesión" class="login-img">
-                <span class="login-text">Iniciar sesión</span>
-            </button>
-            <button id="btnRegistro" class="registro-link">Registrarse</button>
-        </div>
-    </div>
+    // Abro el modal de login al hacer click en el botón
+    if (btnLogin) {
+        btnLogin.onclick = () => {
+            modalLogin.style.display = 'flex';
+            if (loginError) loginError.textContent = '';
+        };
+    }
 
-    <!-- ── MODAL: LOGIN DE ADMINISTRADOR ── -->
-    <!-- Solo visible cuando el admin hace clic en "Iniciar sesión" -->
-    <div id="modalLogin" style="display:none;">
-        <div class="modal-content">
-            <h3>Login Administrador</h3>
-            <input type="text" id="usuario" placeholder="Usuario">
-            <input type="password" id="contrasena" placeholder="Contraseña">
-            <button id="loginSubmit">Entrar</button>
-            <!-- Se muestra si las credenciales son incorrectas -->
-            <p id="loginError" style="color:red; display:none;">Usuario o contraseña incorrecta</p>
-            <button id="closeModal">Cerrar</button>
-        </div>
-    </div>
+    // Cierro el modal con la X o haciendo click fuera
+    if ($('closeModal')) {
+        $('closeModal').onclick = () => modalLogin.style.display = 'none';
+    }
 
-    <!-- ── MODAL: SOLICITUD DE REGISTRO ── -->
-    <!-- El visitante pide acceso; el admin aprueba o rechaza desde su panel -->
-    <div id="modalRegistro" style="display:none;">
-        <div class="modal-content">
-            <h3 style="color:#FAA18F;">Solicitar Acceso</h3>
-            <p class="registro-info">Tu solicitud será revisada por un administrador.</p>
-            <input type="text" id="regNombre" placeholder="Nombre de usuario">
-            <input type="password" id="regPassword" placeholder="Contraseña">
-            <button id="registroSubmit">Enviar solicitud</button>
-            <!-- Muestra si la solicitud se envió bien o hubo error -->
-            <p id="registroMsg" style="display:block; margin-top:10px; font-size:14px;"></p>
-            <button id="closeRegistro" style="background-color:#FAA18F; color: white;">Cerrar</button>
-        </div>
-    </div>
+    if (modalLogin) {
+        modalLogin.onclick = e => {
+            if (e.target === modalLogin) modalLogin.style.display = 'none';
+        };
+    }
 
-    <!-- ── CONTENEDOR PRINCIPAL (menú lateral + contenido) ── -->
-    <div class="contenedor-principal">
-
-        <!-- MENÚ LATERAL (solo visible en desktop) -->
-        <div class="menu_figura">
-            <div class="menu-titulo">MENÚ</div>
-            <div class="menu-flotante">
-                <ul>
-                    <!-- Cada li tiene una clase igual al id de su sección para resaltarla -->
-                    <li class="menu-item inicio activo">
-                        <a href="#inicio"><img src="imagenes/inicio.png" class="icono"> Inicio</a>
-                    </li>
-                    <li class="menu-item mascotas">
-                        <a href="#mascotas"><img src="imagenes/mascotas.png" class="icono"> Mascotas</a>
-                    </li>
-                    <li class="menu-item donaciones">
-                        <a href="#donaciones"><img src="imagenes/donaciones.png" class="icono"> Donaciones</a>
-                    </li>
-                    <li class="menu-item ubicacion">
-                        <a href="#ubicacion"><img src="imagenes/ubicacion.png" class="icono"> Ubicación</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- ── ÁREA DE CONTENIDO (secciones) ── -->
-        <div class="contenido">
-
-            <!-- ════ SECCIÓN: INICIO ════ -->
-            <div id="inicio" class="seccion inicio-seccion activa" style="height:527px;">
-                <div class="letrero_figura" style="flex-shrink:0;">
-                    <h1 class="titulo-bienvenida">Bienvenidos a HuellitasTec</h1>
-                </div>
-
-                <!-- Tarjetas de acceso rápido a cada sección; al hacer clic llaman a irA() -->
-                <div class="inicio-cards-wrapper" style="margin:0 10px; flex-shrink:0;">
-                    <div class="inicio-cards-fila" style="margin:0;">
-
-                        <!-- Tarjeta → Mascotas -->
-                        <div class="inicio-card card-mascotas" onclick="irA('mascotas')">
-                            <div class="card-deco-circle"></div>
-                            <div class="card-icon" style="width:42px;height:42px;border-radius:50%;background:#D8CBEF;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                <!-- Ícono de huella de pata morada -->
-                                <svg width="22" height="22" viewBox="0 0 100 100" fill="#7B5EA7"><ellipse cx="50" cy="68" rx="24" ry="20"/><ellipse cx="22" cy="46" rx="10" ry="13" transform="rotate(10 22 46)"/><ellipse cx="38" cy="34" rx="10" ry="13" transform="rotate(-5 38 34)"/><ellipse cx="62" cy="34" rx="10" ry="13" transform="rotate(5 62 34)"/><ellipse cx="78" cy="46" rx="10" ry="13" transform="rotate(-10 78 46)"/></svg>
-                            </div>
-                            <div class="card-info">
-                                <p class="card-label">Mascotas</p>
-                                <p class="card-sub">ver disponibles</p>
-                            </div>
-                            <div class="card-arrow">→</div>
-                        </div>
-
-                        <!-- Tarjeta → Donaciones -->
-                        <div class="inicio-card card-donaciones" onclick="irA('donaciones')">
-                            <div class="card-deco-circle"></div>
-                            <div class="card-icon" style="width:42px;height:42px;border-radius:50%;background:#FBCBA8;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                <!-- Ícono de corazón naranja -->
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="#C4622A"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                            </div>
-                            <div class="card-info">
-                                <p class="card-label">Donaciones</p>
-                                <p class="card-sub">inventario y más</p>
-                            </div>
-                            <div class="card-arrow">→</div>
-                        </div>
-
-                        <!-- Tarjeta → Ubicación -->
-                        <div class="inicio-card card-ubicacion" onclick="irA('ubicacion')">
-                            <div class="card-deco-circle"></div>
-                            <div class="card-icon" style="width:42px;height:42px;border-radius:50%;background:#B0E0E6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                <!-- Ícono de pin de mapa azul -->
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="#2A8FA5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                            </div>
-                            <div class="card-info">
-                                <p class="card-label">Ubicación</p>
-                                <p class="card-sub">próximamente</p>
-                            </div>
-                            <div class="card-arrow">→</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Banner motivacional con frase del refugio -->
-                <!-- Las 4 huellas decorativas en las esquinas son SVG con opacidad baja -->
-                <div class="banner-motivacional" style="background:white; border:3px solid #FCC6BB; border-radius:5px; margin:8px 10px 10px 10px; position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:28px 30px; box-sizing:border-box; flex:1; min-height:0;">
-
-                        <!-- Huella decorativa: arriba izquierda -->
-                        <svg class="pata-deco" style="position:absolute;top:10px;left:10px;opacity:0.35;transform:rotate(-20deg);pointer-events:none;" width="90" height="90" viewBox="0 0 100 100" fill="#FAA18F">
-                            <ellipse cx="50" cy="68" rx="24" ry="20"/>
-                            <ellipse cx="22" cy="46" rx="10" ry="13" transform="rotate(10 22 46)"/>
-                            <ellipse cx="38" cy="34" rx="10" ry="13" transform="rotate(-5 38 34)"/>
-                            <ellipse cx="62" cy="34" rx="10" ry="13" transform="rotate(5 62 34)"/>
-                            <ellipse cx="78" cy="46" rx="10" ry="13" transform="rotate(-10 78 46)"/>
-                        </svg>
-                        <!-- Huella decorativa: arriba derecha -->
-                        <svg class="pata-deco" style="position:absolute;top:10px;right:10px;opacity:0.35;transform:rotate(20deg);pointer-events:none;" width="90" height="90" viewBox="0 0 100 100" fill="#FAA18F">
-                            <ellipse cx="50" cy="68" rx="24" ry="20"/>
-                            <ellipse cx="22" cy="46" rx="10" ry="13" transform="rotate(10 22 46)"/>
-                            <ellipse cx="38" cy="34" rx="10" ry="13" transform="rotate(-5 38 34)"/>
-                            <ellipse cx="62" cy="34" rx="10" ry="13" transform="rotate(5 62 34)"/>
-                            <ellipse cx="78" cy="46" rx="10" ry="13" transform="rotate(-10 78 46)"/>
-                        </svg>
-                        <!-- Huella decorativa: abajo izquierda -->
-                        <svg class="pata-deco" style="position:absolute;bottom:10px;left:20px;opacity:0.35;transform:rotate(15deg);pointer-events:none;" width="90" height="90" viewBox="0 0 100 100" fill="#FAA18F">
-                            <ellipse cx="50" cy="68" rx="24" ry="20"/>
-                            <ellipse cx="22" cy="46" rx="10" ry="13" transform="rotate(10 22 46)"/>
-                            <ellipse cx="38" cy="34" rx="10" ry="13" transform="rotate(-5 38 34)"/>
-                            <ellipse cx="62" cy="34" rx="10" ry="13" transform="rotate(5 62 34)"/>
-                            <ellipse cx="78" cy="46" rx="10" ry="13" transform="rotate(-10 78 46)"/>
-                        </svg>
-                        <!-- Huella decorativa: abajo derecha -->
-                        <svg class="pata-deco" style="position:absolute;bottom:10px;right:20px;opacity:0.35;transform:rotate(-15deg);pointer-events:none;" width="90" height="90" viewBox="0 0 100 100" fill="#FAA18F">
-                            <ellipse cx="50" cy="68" rx="24" ry="20"/>
-                            <ellipse cx="22" cy="46" rx="10" ry="13" transform="rotate(10 22 46)"/>
-                            <ellipse cx="38" cy="34" rx="10" ry="13" transform="rotate(-5 38 34)"/>
-                            <ellipse cx="62" cy="34" rx="10" ry="13" transform="rotate(5 62 34)"/>
-                            <ellipse cx="78" cy="46" rx="10" ry="13" transform="rotate(-10 78 46)"/>
-                        </svg>
-
-                        <!-- Ícono central: huella grande en círculo blanco -->
-                        <div class="icono-central" style="width:58px;height:58px;background:#FFF0F0;border:2px solid #FCC6BB;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:16px;z-index:1;">
-                            <svg width="28" height="28" viewBox="0 0 100 100" fill="#FAA18F">
-                                <ellipse cx="50" cy="68" rx="24" ry="20"/>
-                                <ellipse cx="22" cy="46" rx="10" ry="13" transform="rotate(10 22 46)"/>
-                                <ellipse cx="38" cy="34" rx="10" ry="13" transform="rotate(-5 38 34)"/>
-                                <ellipse cx="62" cy="34" rx="10" ry="13" transform="rotate(5 62 34)"/>
-                                <ellipse cx="78" cy="46" rx="10" ry="13" transform="rotate(-10 78 46)"/>
-                            </svg>
-                        </div>
-
-                        <!-- Frase principal del refugio -->
-                        <p class="frase-1" style="font-family:Georgia,serif;font-size:24px;font-weight:700;color:#FAA18F;line-height:1.3;margin:0 0 6px;z-index:1;">
-                            Ellos no pueden pedir ayuda.
-                        </p>
-                        <p class="frase-2" style="font-family:Georgia,serif;font-size:28px;font-weight:700;color:#FAA18F;line-height:1.3;margin:0 0 14px;z-index:1;">
-                            Tú sí puedes darla.
-                        </p>
-
-                        <!-- Línea decorativa separadora -->
-                        <div style="width:44px;height:3px;background:#FCC6BB;border-radius:10px;margin:0 auto 14px;z-index:1;"></div>
-
-                        <!-- Descripción breve del refugio -->
-                        <p class="subtexto" style="font-size:13px;color:#c9a09a;line-height:1.6;max-width:400px;margin:0 0 20px;z-index:1;">
-                            En HuellitasTec cada animal tiene nombre, historia y alguien que lo cuida. Con tu apoyo seguimos escribiendo esas historias.
-                        </p>
-
-                        <!-- Botones de llamada a la acción -->
-                        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;z-index:1;">
-                            <!-- Botón sólido: va a donaciones -->
-                            <button onclick="irA('donaciones')" style="background:#FAA18F;color:white;border:none;border-radius:24px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;">
-                                Quiero ayudar
-                            </button>
-                            <!-- Botón outline: va a mascotas -->
-                            <button onclick="irA('mascotas')" style="background:transparent;color:#FAA18F;border:2px solid #FCC6BB;border-radius:24px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;">
-                                Conocer mascotas
-                            </button>
-                        </div>
-                    </div>
-
-            </div>
-
-            <!-- ════ SECCIÓN: MASCOTAS ════ -->
-            <div id="mascotas" class="seccion">
-                <div class="letrero_figura_mascotas">
-                    <h1 class="titulo-mascotas">Mascotas Disponibles</h1>
-                </div>
-                <div class="letrero_mascotas">
-
-                    <!-- Pestañas para filtrar por sexo -->
-                    <div class="mascotas-menu">
-                        <button class="tab-btn-mas activo" onclick="mostrarTab('mascotas','hembras')">Hembras</button>
-                        <button class="tab-btn-mas" onclick="mostrarTab('mascotas','machos')">Machos</button>
-                    </div>
-
-                    <!-- Las tarjetas de mascotas se inyectan aquí desde public.js -->
-                    <div class="contenido-mascotas">
-                        <div id="hembras" class="tab-contenido"><p class="mas-pub-cargando">Cargando mascotas...</p></div>
-                        <div id="machos" class="tab-contenido" style="display:none;"><p class="mas-pub-cargando">Cargando mascotas...</p></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ════ SECCIÓN: DONACIONES ════ -->
-            <div id="donaciones" class="seccion">
-                <div class="letrero_figura_donaciones">
-                    <h1 class="titulo-donaciones">Donaciones</h1>
-                </div>
-                <div class="letrero_donaciones">
-
-                    <!-- Pestañas: ver inventario / registrar donación -->
-                    <div class="donaciones-menu">
-                        <button class="tab-btn-don activo" onclick="mostrarTab('donaciones','inventario')">Inventario</button>
-                        <button class="tab-btn-don" onclick="mostrarTab('donaciones','donar')">Donar</button>
-                    </div>
-
-                    <div class="contenido-donaciones">
-
-                        <!-- Pestaña 1: inventario actual (solo lectura para el público) -->
-                        <div id="inventario" class="tab-contenido">
-                            <!-- public.js llena esta lista con cargarInventario() -->
-                            <div class="inv-pub-container" id="inv-pub-lista">
-                                <p class="inv-pub-cargando">Cargando inventario...</p>
-                            </div>
-                        </div>
-
-                        <!-- Pestaña 2: formulario para solicitar una donación -->
-                        <!-- Diferencia vs admin: aquí la donación queda PENDIENTE hasta que el admin la apruebe -->
-                        <div id="donar" class="tab-contenido" style="display:none;">
-                            <div class="form-donacion">
-                                <p class="form-don-subtitulo">Tu apoyo hace la diferencia para nuestros perritos</p>
-
-                                <!-- Nombre del donante y descripción del artículo -->
-                                <div class="form-don-cantidad-row">
-                                    <div class="form-don-campo">
-                                        <label class="form-don-label">Nombre del donante</label>
-                                        <input type="text" id="donNombre" class="form-don-input" placeholder="Nombre">
-                                    </div>
-                                    <div class="form-don-campo">
-                                        <label class="form-don-label">¿Qué vas a donar?</label>
-                                        <input type="text" id="donDescripcion" class="form-don-input" placeholder="Descripción">
-                                    </div>
-                                </div>
-
-                                <!-- Cantidad + unidad de medida -->
-                                <div class="form-don-campo">
-                                    <label class="form-don-label">Cantidad</label>
-                                    <div class="form-don-cantidad-row">
-                                        <input type="number" id="donCantidad" class="form-don-input form-don-num" placeholder="Cantidad" min="0" step="1">
-                                        <select id="donUnidad" class="form-don-input form-don-select">
-                                            <option value="">Unidad</option>
-                                            <option value="kg">kg</option>
-                                            <option value="piezas">piezas</option>
-                                            <option value="bolsas">bolsas</option>
-                                            <option value="cajas">cajas</option>
-                                            <option value="litros">litros</option>
-                                            <option value="otro">otro</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <!-- Fecha en que se entregará la donación -->
-                                <div class="form-don-campo">
-                                    <label class="form-don-label">Fecha de entrega</label>
-                                    <input type="date" id="donFecha" class="form-don-input">
-                                </div>
-
-                                <!-- "Solicitar" en lugar de "Registrar" porque va a revisión del admin -->
-                                <button id="btnEnviarDonacion" class="form-don-btn">Solicitar donación</button>
-
-                                <!-- Mensaje de resultado tras enviar -->
-                                <p id="donMsg" class="form-don-msg"></p>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <!-- ════ SECCIÓN: UBICACIÓN  ════ -->
-            <div id="ubicacion" class="seccion">
-                <div class="letrero_figura_ubicacion">
-                    <h1 class="titulo-ubicacion">Ubicación</h1>
-                </div>
-                <div class="letrero_ubicacion">
-                    <!-- Pantalla de próximamente con imagen ilustrativa -->
-                    <div class="ubi-container">
-                        <div class="ubi-circle">
-                            <img src="imagenes/ubi_rep.png" alt="Ubicación" class="ubi-img">
-                        </div>
-                        <p class="ubi-text">¡Próximamente Disponible!</p>
-                        <p class="ubi-info-text">
-                            Este apartado está en desarrollo. Pronto podrás rastrear la ubicación de cada mascota en tiempo real mediante GPS.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- BARRA DE NAVEGACIÓN INFERIOR (solo en móvil) -->
-    <nav class="mob-bottom-nav">
-        <a href="#inicio" class="mob-nav-btn activo" id="nav-inicio">
-            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            Inicio
-        </a>
-        <a href="#mascotas" class="mob-nav-btn" id="nav-mascotas">
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><ellipse cx="50" cy="68" rx="24" ry="20"/><ellipse cx="22" cy="46" rx="10" ry="13" transform="rotate(10 22 46)"/><ellipse cx="38" cy="34" rx="10" ry="13" transform="rotate(-5 38 34)"/><ellipse cx="62" cy="34" rx="10" ry="13" transform="rotate(5 62 34)"/><ellipse cx="78" cy="46" rx="10" ry="13" transform="rotate(-10 78 46)"/></svg>
-            Mascotas
-        </a>
-        <a href="#donaciones" class="mob-nav-btn" id="nav-donaciones">
-            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            Donaciones
-        </a>
-        <a href="#ubicacion" class="mob-nav-btn" id="nav-ubicacion">
-            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            Ubicación
-        </a>
-    </nav>
-
-    <script>
-    // Navega entre secciones: quita la clase "activa" de todas y se la pone a la destino
-    window.irA = function(seccionId) {
-        document.querySelectorAll('.seccion').forEach(function(s) {
-            s.classList.remove('activa');
-        });
-
-        var dest = document.getElementById(seccionId);
-        if (dest) dest.classList.add('activa');
-
-        // Resalta el ítem del menú lateral
-        document.querySelectorAll('.menu-item').forEach(function(li) {
-            li.classList.remove('activo');
-            if (li.classList.contains(seccionId)) li.classList.add('activo');
-        });
-
-        // Resalta el botón de la barra inferior
-        document.querySelectorAll('.mob-nav-btn').forEach(function(b) { b.classList.remove('activo'); });
-        var nb = document.getElementById('nav-' + seccionId);
-        if (nb) nb.classList.add('activo');
-
-        // Carga los datos de la sección si la función existe en public.js
-        if (seccionId === 'donaciones' && typeof cargarInventario === 'function') cargarInventario();
-        if (seccionId === 'mascotas'   && typeof cargarMascotas   === 'function') cargarMascotas('hembra');
-    };
-
-    // Conecta la barra inferior al sistema irA()
-    document.querySelectorAll('.mob-bottom-nav a').forEach(function(a) {
-        a.addEventListener('click', function(e) {
+    // Envío las credenciales al servidor y si están bien mando al admin
+    if (loginSubmit) {
+        loginSubmit.onclick = async (e) => {
             e.preventDefault();
-            irA(this.getAttribute('href').replace('#',''));
+
+            const usuario    = $('usuario')?.value.trim();
+            const contrasena = $('contrasena')?.value.trim();
+
+            if (!usuario || !contrasena) {
+                if (loginError) loginError.textContent = 'Completa todos los campos';
+                return;
+            }
+
+            try {
+                const res  = await fetch(BASE + '/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario, contrasena })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.mensaje || 'Usuario o contraseña incorrectos');
+                }
+
+                // Guardo los datos de sesión en localStorage y redirijo
+                localStorage.setItem('logueado', 'true');
+
+                const nombre =
+                    data?.usuario?.Nombre ||
+                    data?.usuario?.nombre ||
+                    data?.nombre ||
+                    usuario;
+
+                localStorage.setItem('nombreUsuario', nombre);
+
+                if (data?.usuario?.Rol) {
+                    localStorage.setItem('rol', data.usuario.Rol);
+                }
+
+                window.location.href = '/admin';
+
+            } catch (err) {
+                if (loginError) loginError.textContent = err.message;
+                console.error('Error login:', err);
+            }
+        };
+    }
+
+    // También dejo hacer login presionando Enter desde la contraseña
+    if ($('contrasena')) {
+        $('contrasena').addEventListener('keypress', e => {
+            if (e.key === 'Enter') loginSubmit?.click();
+        });
+    }
+
+    /* ── REGISTRO ── */
+    const btnRegistro    = $('btnRegistro');
+    const modalRegistro  = $('modalRegistro');
+    const registroMsg    = $('registroMsg');
+    const registroSubmit = $('registroSubmit');
+
+    // Abro el modal de registro
+    if (btnRegistro) {
+        btnRegistro.onclick = () => {
+            modalRegistro.style.display = 'flex';
+            if (registroMsg) registroMsg.textContent = '';
+        };
+    }
+
+    // Cierro el modal con la X o haciendo click fuera
+    if ($('closeRegistro')) {
+        $('closeRegistro').onclick = () => modalRegistro.style.display = 'none';
+    }
+
+    if (modalRegistro) {
+        modalRegistro.onclick = e => {
+            if (e.target === modalRegistro) modalRegistro.style.display = 'none';
+        };
+    }
+
+    // Envío el registro y muestro el resultado (queda pendiente hasta que lo aprueben)
+    if (registroSubmit) {
+        registroSubmit.onclick = async () => {
+            const nombre   = $('regNombre')?.value.trim();
+            const password = $('regPassword')?.value.trim();
+
+            if (!nombre || !password) {
+                registroMsg.style.color = '#D05A5A';
+                registroMsg.textContent = 'Completa todos los campos';
+                return;
+            }
+
+            try {
+                const res  = await fetch(BASE + '/registro', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, password })
+                });
+
+                const data = await res.json();
+
+                registroMsg.style.color = res.ok ? '#2e7d32' : '#D05A5A';
+                registroMsg.textContent = data.mensaje;
+
+                // Limpio el formulario si el registro fue exitoso
+                if (res.ok) {
+                    $('regNombre').value   = '';
+                    $('regPassword').value = '';
+                }
+
+            } catch {
+                registroMsg.style.color = '#D05A5A';
+                registroMsg.textContent = 'Error al conectar con el servidor';
+            }
+        };
+    }
+
+    /* ── MENÚ LATERAL ── */
+    // Al hacer click en un ítem del menú muestro la sección correspondiente
+    const menuItems = document.querySelectorAll('.menu-item a');
+    const secciones = document.querySelectorAll('.seccion');
+
+    menuItems.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            menuItems.forEach(i => i.parentElement.classList.remove('activo'));
+            this.parentElement.classList.add('activo');
+
+            const seccionId = this.getAttribute('href').substring(1);
+
+            secciones.forEach(sec => {
+                sec.classList.remove('activa');
+                sec.style.display = '';
+            });
+            const destino = document.getElementById(seccionId);
+            if (destino) destino.classList.add('activa');
+
+            // Cargo el contenido de la sección que se abre
+            if (this.getAttribute('href') === '#donaciones') cargarInventario();
+            if (this.getAttribute('href') === '#mascotas')   cargarMascotas('hembra');
         });
     });
-    </script>
 
-    <script src="js/public.js"></script>
-</body>
-</html>
+    /* ── SUB-TABS DENTRO DE SECCIONES ── */
+    // Cambio entre hembras/machos e inventario/donaciones
+    window.mostrarTab = function(seccion, tab) {
+        document.querySelectorAll(`#${seccion} .tab-contenido`)
+            .forEach(c => c.style.display = 'none');
+
+        const destino = document.getElementById(tab);
+        if (destino) destino.style.display = 'block';
+
+        const menu = document.querySelector(`#${seccion} .mascotas-menu, #${seccion} .donaciones-menu`);
+        if (!menu) return;
+
+        const clase = seccion === 'mascotas' ? 'tab-btn-mas' : 'tab-btn-don';
+        const botones = menu.querySelectorAll('.' + clase);
+
+        botones.forEach(b => b.classList.remove('activo'));
+
+        // Marco el botón activo y cargo el contenido correspondiente
+        if (tab === 'hembras' || tab === 'inventario') botones[0]?.classList.add('activo');
+        else botones[1]?.classList.add('activo');
+
+        if (tab === 'inventario') cargarInventario();
+        if (tab === 'hembras')    cargarMascotas('hembra');
+        if (tab === 'machos')     cargarMascotas('macho');
+    };
+
+
+    /* ── MASCOTAS PÚBLICAS ── */
+    // Cargo y muestro la lista de mascotas filtrada por sexo
+    async function cargarMascotas(sexo) {
+        const tabId = sexo === 'hembra' ? 'hembras' : 'machos';
+        const grid  = document.getElementById(tabId);
+        if (!grid) return;
+        grid.innerHTML = '<p class="mas-pub-cargando">Cargando mascotas...</p>';
+        try {
+            const data = await (await fetch(BASE + '/mascotas?sexo=' + sexo)).json();
+            if (!data.length) {
+                grid.innerHTML = '<p class="mas-pub-cargando">No hay ' + (sexo === 'hembra' ? 'hembras' : 'machos') + ' en el sistema.</p>';
+                return;
+            }
+            grid.innerHTML = '<div class="mas-pub-lista">' + data.map(m => tarjetaMascotaPub(m)).join('') + '</div>';
+        } catch {
+            grid.innerHTML = '<p class="mas-pub-cargando">Error al cargar mascotas.</p>';
+        }
+    }
+
+    // Genero el HTML de una tarjeta de mascota para la vista pública (solo lectura)
+    function tarjetaMascotaPub(m) {
+        const S = {
+            verde:    { color: '#4CAF50', label: 'Saludable',          textColor: '#2e7d32' },
+            amarilla: { color: '#FFC107', label: 'Atención pendiente', textColor: '#b7680b' },
+            roja:     { color: '#E53935', label: 'Cuidado urgente',    textColor: '#b00000' },
+            gris:     { color: '#9E9E9E', label: 'Sin seguimiento',    textColor: '#555'    },
+        };
+        const s = S[m.semaforo] || S.gris;
+        const fotoEl = m.fotografia || m.Fotografia
+            ? `<img src="${BASE}/${m.fotografia || m.Fotografia}" alt="${m.Nombre}" class="mas-pub-foto">`
+            : `<div class="mas-pub-foto mas-pub-foto-vacia">🐾</div>`;
+
+        // Solo muestro la fecha del próximo cuidado si existe
+        const prox = m.prox_cuidado_tipo && m.prox_cuidado_fecha
+            ? `<span class="mas-pub-prox"> ${m.prox_cuidado_tipo}: ${m.prox_cuidado_fecha.substring(0,10)}</span>`
+            : '';
+
+        return `
+        <div class="mas-pub-row" onclick="verDetalleMascota(${m.Id_mascota})" title="Toca para ver más info">
+            <div class="mas-pub-semaforo-bar" style="background:transparent;width:0;margin:0;"></div>
+            ${fotoEl}
+            <div class="mas-pub-info">
+                <p class="mas-pub-nombre">${m.Nombre}</p>
+                <p class="mas-pub-detalle">
+                    ${m.Edad != null ? m.Edad + ' año(s)' : '—'} &nbsp;·&nbsp;
+                    ${m.Peso != null ? m.Peso + ' kg' : '—'}
+                    ${m.Caracteristicas ? ' &nbsp;·&nbsp; ' + m.Caracteristicas.substring(0,35) + (m.Caracteristicas.length > 35 ? '…' : '') : ''}
+                </p>
+                ${prox}
+            </div>
+            <div class="mas-pub-estado" style="color:${s.textColor};background:${s.color}18;">
+                <span class="mas-pub-dot" style="background:${s.color};"></span>
+                ${s.label}
+            </div>
+            <div class="mas-pub-ver-btn">Ver info</div>
+        </div>`;
+    }
+
+    /* ── MODAL DETALLE PÚBLICO ── */
+    // Cargo los datos de una mascota y abro un modal con sus cuidados y seguimientos
+    window.verDetalleMascota = async function(id) {
+        let m;
+        try {
+            const res = await fetch(`${BASE}/mascota/${id}`);
+            m = await res.json();
+        } catch {
+            return;
+        }
+
+        const S = {
+            verde:    { color: '#4CAF50', label: 'Saludable',          textColor: '#2e7d32' },
+            amarilla: { color: '#FFC107', label: 'Atención pendiente', textColor: '#b7680b' },
+            roja:     { color: '#E53935', label: 'Cuidado urgente',    textColor: '#b00000' },
+            gris:     { color: '#9E9E9E', label: 'Sin seguimiento',    textColor: '#555'    },
+        };
+        const s = S[m.semaforo] || S.gris;
+        const hoy = new Date(); hoy.setHours(0,0,0,0);
+
+        const fotoHTML = '';
+
+        // Genero el historial de cuidados con badge de estado (vencido/próximo/ok)
+        const cuidadosHTML = (m.cuidados && m.cuidados.length)
+            ? m.cuidados.map(c => {
+                const fp = c.fecha_proxima ? new Date(c.fecha_proxima) : null;
+                let badge = '';
+                if (fp) {
+                    const diff = (fp - hoy) / 86400000;
+                    if (diff < 0)       badge = `<span class="mpub-badge mpub-badge-rojo">Vencido</span>`;
+                    else if (diff <= 7) badge = `<span class="mpub-badge mpub-badge-amarillo">Próximo</span>`;
+                    else                badge = `<span class="mpub-badge mpub-badge-verde">OK</span>`;
+                }
+                return `<div class="mpub-row">
+                    <span class="mpub-tipo">${c.tipo}</span>${badge}
+                    <span class="mpub-fecha">Realizado: ${c.fecha ? c.fecha.substring(0,10) : '—'}</span>
+                    ${fp ? `<span class="mpub-fecha">Próximo: ${fp.toISOString().substring(0,10)}</span>` : ''}
+                    ${c.descripcion ? `<p class="mpub-desc">${c.descripcion}</p>` : ''}
+                </div>`;
+            }).join('')
+            : '<p class="mpub-vacio">Sin cuidados registrados.</p>';
+
+        // Muestro los últimos 5 seguimientos con color según nivel de energía
+        const segHTML = (m.seguimientos && m.seguimientos.length)
+            ? m.seguimientos.slice(0,5).map(sg => {
+                const energ = sg.energia != null
+                    ? `<span class="mpub-energ" style="background:${sg.energia>=7?'#e8f5e9':sg.energia>=4?'#fff8e1':'#feecec'};color:${sg.energia>=7?'#2e7d32':sg.energia>=4?'#b7680b':'#b00000'};">Energía ${sg.energia}/10</span>`
+                    : '';
+                return `<div class="mpub-row">
+                    <span class="mpub-fecha">${sg.fecha ? sg.fecha.substring(0,10) : '—'}</span>
+                    ${sg.comportamiento ? `<span class="mpub-tipo">${sg.comportamiento}</span>` : ''}
+                    ${energ}
+                    ${sg.notas ? `<p class="mpub-desc">${sg.notas}</p>` : ''}
+                </div>`;
+            }).join('')
+            : '<p class="mpub-vacio">Sin seguimientos recientes.</p>';
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.5);z-index:9999;
+            display:flex;align-items:center;justify-content:center;`;
+
+        overlay.innerHTML = `
+        <div style="background:white;border-radius:18px;border:2.5px solid ${s.color};
+                    width:min(440px,88vw);max-height:88vh;overflow:hidden;display:flex;flex-direction:column;">
+            <style>
+                .mpub-tabs{display:flex;border-bottom:1px solid #eee;}
+                .mpub-tab{flex:1;padding:11px 0;text-align:center;font-size:13px;font-weight:700;
+                    cursor:pointer;border:none;background:transparent;color:#aaa;}
+                .mpub-tab.on{color:${s.color};border-bottom:3px solid ${s.color};}
+                .mpub-panel{display:none;padding:12px 16px;overflow-y:auto;max-height:calc(88vh - 160px);}
+                .mpub-panel.on{display:block;}
+                .mpub-row{padding:8px 0;border-bottom:1px solid #f5f5f5;display:flex;flex-wrap:wrap;align-items:center;gap:5px;}
+                .mpub-tipo{font-size:13px;font-weight:700;color:#555;}
+                .mpub-fecha{font-size:11px;color:#bbb;}
+                .mpub-desc{font-size:12px;color:#888;margin:4px 0 0;width:100%;}
+                .mpub-vacio{text-align:center;color:#ccc;font-size:13px;margin:16px 0;}
+                .mpub-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+                .mpub-badge-rojo{background:#feecec;color:#b00000;}
+                .mpub-badge-amarillo{background:#fff8e1;color:#b7680b;}
+                .mpub-badge-verde{background:#f1f8e9;color:#2e7d32;}
+                .mpub-energ{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+            </style>
+
+            <!-- Header con foto, nombre y semáforo -->
+            <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #eee;">
+                <div style="width:52px;height:52px;border-radius:50%;border:2.5px solid ${s.color};overflow:hidden;flex-shrink:0;background:#EEE5F5;display:flex;align-items:center;justify-content:center;">
+                    ${m.fotografia || m.Fotografia
+                        ? `<img src="${BASE}/${m.fotografia || m.Fotografia}" style="width:100%;height:100%;object-fit:cover;">`
+                        : `<span style="font-size:24px;">🐾</span>`}
+                </div>
+                <div style="flex:1;">
+                    <p style="margin:0;font-size:15px;font-weight:800;color:#7B5EA7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;">${m.Nombre}</p>
+                    <p style="margin:0;font-size:12px;color:#aaa;">
+                        ${m.Edad != null ? m.Edad + ' años' : '—'} · ${m.Peso != null ? m.Peso + ' kg' : '—'} · ${m.Sexo || '—'}
+                    </p>
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;">
+                    <div style="width:10px;height:10px;border-radius:50%;background:${s.color};"></div>
+                    <span style="font-size:11px;font-weight:700;color:${s.textColor};">${s.label}</span>
+                </div>
+                <button onclick="this.closest('[style*=fixed]').remove()"
+                    style="background:none;border:none;font-size:20px;cursor:pointer;color:#ccc;line-height:1;padding:0 0 0 8px;">✕</button>
+            </div>
+
+            <!-- Tabs Info / Cuidados / Seguimiento -->
+            <div class="mpub-tabs">
+                <button class="mpub-tab on"  onclick="mpubTab(this,'mpub-info')">Info</button>
+                <button class="mpub-tab"     onclick="mpubTab(this,'mpub-cuidados')">Cuidados</button>
+                <button class="mpub-tab"     onclick="mpubTab(this,'mpub-seguimiento')">Seguimiento</button>
+            </div>
+
+            <!-- Panel Info -->
+            <div class="mpub-panel on" id="mpub-info">
+                ${fotoHTML}
+                ${m.Caracteristicas
+                    ? `<p style="font-size:14px;color:#666;line-height:1.6;margin:0;">${m.Caracteristicas}</p>`
+                    : '<p style="font-size:13px;color:#ccc;text-align:center;">Sin descripción.</p>'}
+            </div>
+
+            <!-- Panel Cuidados -->
+            <div class="mpub-panel" id="mpub-cuidados">${cuidadosHTML}</div>
+
+            <!-- Panel Seguimiento -->
+            <div class="mpub-panel" id="mpub-seguimiento">${segHTML}</div>
+        </div>`;
+
+        document.body.appendChild(overlay);
+        overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+    };
+
+    // Cambio el tab activo dentro del modal público
+    window.mpubTab = function(btn, panelId) {
+        const modal = btn.closest('[style*=fixed]');
+        modal.querySelectorAll('.mpub-tab').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        modal.querySelectorAll('.mpub-panel').forEach(p => p.classList.remove('on'));
+        modal.querySelector('#' + panelId)?.classList.add('on');
+    };
+
+    /* ── INVENTARIO PÚBLICO ── */
+    // Cargo y muestro los artículos disponibles en el inventario (solo lectura)
+    async function cargarInventario() {
+        const cont = $('inv-pub-lista');
+        if (!cont) return;
+
+        cont.innerHTML = '<p class="inv-pub-cargando">Cargando inventario...</p>';
+
+        try {
+            const res  = await fetch(BASE + '/inventario');
+            const data = await res.json();
+
+            if (!data.length) {
+                cont.innerHTML = '<p class="inv-pub-cargando">No hay artículos en el inventario.</p>';
+                return;
+            }
+
+            cont.innerHTML = data.map(i => `
+                <div class="inv-pub-card">
+                    <div class="inv-pub-icono">📦</div>
+                    <div class="inv-pub-info">
+                        <p class="inv-pub-tipo">${i.Tipo}</p>
+                        <p class="inv-pub-cantidad">${i.Cantidad} <span>${i.Unidad || 'unidades / kg'}</span></p>
+                    </div>
+                    <div class="inv-pub-fecha">${i.Fecha ? i.Fecha.substring(0,10) : '—'}</div>
+                </div>
+            `).join('');
+
+        } catch {
+            cont.innerHTML = '<p class="inv-pub-cargando">Error al cargar el inventario.</p>';
+        }
+    }
+
+    /* ── FORMULARIO DONACIÓN PÚBLICA ── */
+    // Bloqueo fechas pasadas en el campo de fecha
+    const inputFecha = $('donFecha');
+    if (inputFecha) inputFecha.min = new Date().toISOString().split('T')[0];
+
+    // Valido y envío la donación, queda pendiente hasta que el admin la apruebe
+    document.addEventListener('click', async (e) => {
+
+        if (e.target.id !== 'btnEnviarDonacion') return;
+
+        const nombre      = ($('donNombre')?.value ?? '').trim();
+        const descripcion = ($('donDescripcion')?.value ?? '').trim();
+        const cantidad    = parseFloat($('donCantidad')?.value ?? '');
+        const unidad      = $('donUnidad')?.value ?? '';
+        const fecha       = $('donFecha')?.value ?? '';
+        const msg         = $('donMsg');
+
+        if (!nombre || !descripcion || !cantidad || !unidad || !fecha) {
+            msg.style.color = '#D05A5A';
+            msg.textContent = 'Por favor completa todos los campos.';
+            return;
+        }
+
+        if (isNaN(cantidad) || cantidad <= 0) {
+            msg.style.color = '#D05A5A';
+            msg.textContent = 'Cantidad inválida.';
+            return;
+        }
+
+        try {
+            const res  = await fetch(BASE + '/donacion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, descripcion, cantidad, unidad, fecha })
+            });
+
+            const data = await res.json();
+
+            msg.style.color = res.ok ? '#2e7d32' : '#D05A5A';
+            msg.textContent = data.mensaje;
+
+            // Si se envió bien limpio el formulario
+            if (res.ok) {
+                $('donNombre').value      = '';
+                $('donDescripcion').value = '';
+                $('donCantidad').value    = '';
+                $('donUnidad').value      = '';
+                $('donFecha').value       = '';
+            }
+
+        } catch {
+            msg.style.color = '#D05A5A';
+            msg.textContent = 'Error al conectar con el servidor.';
+        }
+    });
+
+    
+
+});
