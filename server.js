@@ -22,11 +22,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ── Sirvo el frontend como archivos estáticos
-// frontend/ está dentro de la misma carpeta que server.js
-app.use(express.static(path.join(__dirname, 'frontend')));
-
-// ── Rutas principales
+// ── Rutas principales VAN ANTES del static para que tengan prioridad
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'public.html'));
 });
@@ -36,10 +32,13 @@ app.get('/admin', (req, res) => {
 });
 
 // ── UptimeRobot: endpoint de health-check para que el servidor no duerma
-// Configura UptimeRobot para que haga ping a https://TU-APP.onrender.com/ping cada 5 min
 app.get('/ping', (req, res) => {
   res.status(200).send('pong');
 });
+
+// ── Sirvo CSS, JS e imágenes del frontend como archivos estáticos
+// IMPORTANTE: va DESPUÉS de las rutas para que / no sea interceptado
+app.use(express.static(path.join(__dirname, 'frontend')));
 
 // ── Configuro multer para subir fotos directo a Cloudinary
 const storage = new CloudinaryStorage({
