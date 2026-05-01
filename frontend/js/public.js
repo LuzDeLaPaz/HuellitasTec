@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.setItem('rol', data.usuario.Rol);
                 }
 
-                window.location.href = 'admin.html';
+                window.location.href = '/admin';
 
             } catch (err) {
                 if (loginError) loginError.textContent = err.message;
@@ -229,8 +229,9 @@ document.addEventListener('DOMContentLoaded', () => {
             gris:     { color: '#9E9E9E', label: 'Sin seguimiento',    textColor: '#555'    },
         };
         const s = S[m.semaforo] || S.gris;
-        const fotoEl = m.fotografia || m.Fotografia
-            ? `<img src="${BASE}/${m.fotografia || m.Fotografia}" alt="${m.Nombre}" class="mas-pub-foto">`
+        const fotoRawPub = m.fotografia || m.Fotografia || '';
+        const fotoEl = fotoRawPub
+            ? `<img src="${fotoRawPub.startsWith('http') ? fotoRawPub : `${BASE}/${fotoRawPub}`}" alt="${m.Nombre}" class="mas-pub-foto">`
             : `<div class="mas-pub-foto mas-pub-foto-vacia">🐾</div>`;
 
         // Solo muestro la fecha del próximo cuidado si existe
@@ -347,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #eee;">
                 <div style="width:52px;height:52px;border-radius:50%;border:2.5px solid ${s.color};overflow:hidden;flex-shrink:0;background:#EEE5F5;display:flex;align-items:center;justify-content:center;">
                     ${m.fotografia || m.Fotografia
-                        ? `<img src="${BASE}/${m.fotografia || m.Fotografia}" style="width:100%;height:100%;object-fit:cover;">`
+                        ? `<img src="${(m.fotografia || m.Fotografia).startsWith('http') ? (m.fotografia || m.Fotografia) : `${BASE}/${m.fotografia || m.Fotografia}`}" style="width:100%;height:100%;object-fit:cover;">`
                         : `<span style="font-size:24px;">🐾</span>`}
                 </div>
                 <div style="flex:1;">
