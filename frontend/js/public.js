@@ -12,7 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnLogin) {
         btnLogin.onclick = () => {
             modalLogin.style.display = 'flex';
+            // Limpio errores y bordes al abrir el modal
             if (loginError) loginError.textContent = '';
+            [$('usuario'), $('contrasena')].forEach(el => {
+                if (el) el.style.border = '';
+            });
         };
     }
 
@@ -33,18 +37,28 @@ document.addEventListener('DOMContentLoaded', () => {
         loginSubmit.onclick = async (e) => {
             e.preventDefault();
 
-            const usuario    = $('usuario')?.value.trim();
-            const contrasena = $('contrasena')?.value.trim();
+            const usuarioInput    = $('usuario');
+            const contrasenaInput = $('contrasena');
+            const usuario         = usuarioInput?.value.trim();
+            const contrasena      = contrasenaInput?.value.trim();
 
+            // Limpio marcas de error previas
+            [usuarioInput, contrasenaInput].forEach(el => {
+                if (el) el.style.border = '';
+            });
+            if (loginError) loginError.textContent = '';
+
+            // Valido campos vacíos y marco cuál falta
             if (!usuario || !contrasena) {
+                if (!usuario    && usuarioInput)    usuarioInput.style.border    = '2px solid #E05555';
+                if (!contrasena && contrasenaInput) contrasenaInput.style.border = '2px solid #E05555';
                 if (loginError) loginError.textContent = 'Completa todos los campos';
                 return;
             }
 
             // Bloqueo el botón mientras espera respuesta
-            loginSubmit.disabled = true;
+            loginSubmit.disabled    = true;
             loginSubmit.textContent = 'Entrando...';
-            if (loginError) loginError.textContent = '';
 
             try {
                 const res  = await fetch(BASE + '/login', {
@@ -76,14 +90,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = '/admin';
 
             } catch (err) {
-                if (loginError) loginError.textContent = err.message;
-                console.error('Error login:', err);
-                // Desbloqueo el botón si falla
-                loginSubmit.disabled = false;
+                // Marco ambos inputs en rojo para indicar credenciales incorrectas
+                if (usuarioInput)    usuarioInput.style.border    = '2px solid #E05555';
+                if (contrasenaInput) contrasenaInput.style.border = '2px solid #E05555';
+                if (loginError)      loginError.textContent       = err.message;
+
+                // Restauro el botón a su estado original
+                loginSubmit.disabled    = false;
                 loginSubmit.textContent = 'Iniciar sesión';
             }
         };
     }
+
+    // Limpio el borde rojo al escribir en cualquier campo del login
+    [$('usuario'), $('contrasena')].forEach(inp => {
+        inp?.addEventListener('input', () => {
+            inp.style.border = '';
+            if (loginError) loginError.textContent = '';
+        });
+    });
 
     if ($('contrasena')) {
         $('contrasena').addEventListener('keypress', e => {
