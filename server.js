@@ -24,11 +24,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // ── Rutas principales VAN ANTES del static para que tengan prioridad
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'public.html'));
+  res.sendFile(path.resolve(__dirname, 'frontend', 'public.html'));
 });
 
 app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'admin.html'));
+  res.sendFile(path.resolve(__dirname, 'frontend', 'admin.html'));
 });
 
 // ── UptimeRobot: endpoint de health-check para que el servidor no duerma
@@ -37,8 +37,7 @@ app.get('/ping', (req, res) => {
 });
 
 // ── Sirvo CSS, JS e imágenes del frontend como archivos estáticos
-// index:false evita que static intercepte la ruta / y sirva un archivo index
-app.use(express.static(path.join(__dirname, 'frontend'), { index: false }));
+app.use(express.static(path.resolve(__dirname, 'frontend'), { index: false }));
 
 // ── Configuro multer para subir fotos directo a Cloudinary
 const storage = new CloudinaryStorage({
@@ -581,6 +580,8 @@ app.listen(port, '0.0.0.0', () => {
   console.log('');
   console.log('🐾 Servidor HuellitasTec corriendo en Render!');
   console.log(`   Puerto: ${port}`);
+  console.log(`   __dirname: ${__dirname}`);
+  console.log(`   Buscando frontend en: ${path.resolve(__dirname, 'frontend')}`);
   console.log(`   Health-check disponible en /ping`);
   console.log('');
 });
