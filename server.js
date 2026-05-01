@@ -6,16 +6,16 @@ const cloudinary   = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const connection   = require('./db');
 
-const app  = express();
-// Render asigna el puerto por variable de entorno, nunca uses 3000 fijo
-const port = process.env.PORT || 3000;
-
 // ── Configuro Cloudinary con las variables de entorno de Render
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key:    process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
+const app  = express();
+// Render asigna el puerto por variable de entorno, nunca uses 3000 fijo
+const port = process.env.PORT || 3000;
 
 // ── Permito solicitudes desde cualquier origen y acepto JSON de hasta 10mb
 app.use(cors());
