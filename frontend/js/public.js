@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginError  = $('loginError');
     const loginSubmit = $('loginSubmit');
 
-    // Abro el modal de login al hacer click en el botón
     if (btnLogin) {
         btnLogin.onclick = () => {
             modalLogin.style.display = 'flex';
@@ -17,18 +16,19 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Cierro el modal con la X o haciendo click fuera
+    // Cierro el modal con la X
     if ($('closeModal')) {
         $('closeModal').onclick = () => modalLogin.style.display = 'none';
     }
 
+    // Solo cierro clicking fuera si NO está procesando el login
     if (modalLogin) {
         modalLogin.onclick = e => {
-            if (e.target === modalLogin) modalLogin.style.display = 'none';
+            if (e.target === modalLogin && !loginSubmit?.disabled)
+                modalLogin.style.display = 'none';
         };
     }
 
-    // Envío las credenciales al servidor y si están bien mando al admin
     if (loginSubmit) {
         loginSubmit.onclick = async (e) => {
             e.preventDefault();
@@ -40,6 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (loginError) loginError.textContent = 'Completa todos los campos';
                 return;
             }
+
+            // Bloqueo el botón mientras espera respuesta
+            loginSubmit.disabled = true;
+            loginSubmit.textContent = 'Entrando...';
+            if (loginError) loginError.textContent = '';
 
             try {
                 const res  = await fetch(BASE + '/login', {
@@ -54,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(data.mensaje || 'Usuario o contraseña incorrectos');
                 }
 
-                // Guardo los datos de sesión en localStorage y redirijo
                 localStorage.setItem('logueado', 'true');
 
                 const nombre =
@@ -74,11 +78,13 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 if (loginError) loginError.textContent = err.message;
                 console.error('Error login:', err);
+                // Desbloqueo el botón si falla
+                loginSubmit.disabled = false;
+                loginSubmit.textContent = 'Iniciar sesión';
             }
         };
     }
 
-    // También dejo hacer login presionando Enter desde la contraseña
     if ($('contrasena')) {
         $('contrasena').addEventListener('keypress', e => {
             if (e.key === 'Enter') loginSubmit?.click();
@@ -91,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const registroMsg    = $('registroMsg');
     const registroSubmit = $('registroSubmit');
 
-    // Abro el modal de registro
     if (btnRegistro) {
         btnRegistro.onclick = () => {
             modalRegistro.style.display = 'flex';
@@ -99,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Cierro el modal con la X o haciendo click fuera
     if ($('closeRegistro')) {
         $('closeRegistro').onclick = () => modalRegistro.style.display = 'none';
     }
@@ -110,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Envío el registro y muestro el resultado (queda pendiente hasta que lo aprueben)
     if (registroSubmit) {
         registroSubmit.onclick = async () => {
             const nombre   = $('regNombre')?.value.trim();
@@ -121,6 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 registroMsg.textContent = 'Completa todos los campos';
                 return;
             }
+
+            registroSubmit.disabled = true;
+            registroSubmit.textContent = 'Enviando...';
 
             try {
                 const res  = await fetch(BASE + '/registro', {
@@ -134,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 registroMsg.style.color = res.ok ? '#2e7d32' : '#D05A5A';
                 registroMsg.textContent = data.mensaje;
 
-                // Limpio el formulario si el registro fue exitoso
                 if (res.ok) {
                     $('regNombre').value   = '';
                     $('regPassword').value = '';
@@ -143,12 +148,14 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch {
                 registroMsg.style.color = '#D05A5A';
                 registroMsg.textContent = 'Error al conectar con el servidor';
+            } finally {
+                registroSubmit.disabled = false;
+                registroSubmit.textContent = 'Registrarse';
             }
         };
     }
 
     /* ── MENÚ LATERAL ── */
-    // Al hacer click en un ítem del menú muestro la sección correspondiente
     const menuItems = document.querySelectorAll('.menu-item a');
     const secciones = document.querySelectorAll('.seccion');
 
@@ -168,14 +175,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const destino = document.getElementById(seccionId);
             if (destino) destino.classList.add('activa');
 
-            // Cargo el contenido de la sección que se abre
             if (this.getAttribute('href') === '#donaciones') cargarInventario();
             if (this.getAttribute('href') === '#mascotas')   cargarMascotas('hembra');
         });
     });
 
-    /* ── SUB-TABS DENTRO DE SECCIONES ── */
-    // Cambio entre hembras/machos e inventario/donaciones
+    /* ── SUB-TABS ── */
     window.mostrarTab = function(seccion, tab) {
         document.querySelectorAll(`#${seccion} .tab-contenido`)
             .forEach(c => c.style.display = 'none');
@@ -186,12 +191,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const menu = document.querySelector(`#${seccion} .mascotas-menu, #${seccion} .donaciones-menu`);
         if (!menu) return;
 
-        const clase = seccion === 'mascotas' ? 'tab-btn-mas' : 'tab-btn-don';
+        const clase   = seccion === 'mascotas' ? 'tab-btn-mas' : 'tab-btn-don';
         const botones = menu.querySelectorAll('.' + clase);
-
         botones.forEach(b => b.classList.remove('activo'));
 
-        // Marco el botón activo y cargo el contenido correspondiente
         if (tab === 'hembras' || tab === 'inventario') botones[0]?.classList.add('activo');
         else botones[1]?.classList.add('activo');
 
@@ -200,9 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tab === 'machos')     cargarMascotas('macho');
     };
 
-
     /* ── MASCOTAS PÚBLICAS ── */
-    // Cargo y muestro la lista de mascotas filtrada por sexo
     async function cargarMascotas(sexo) {
         const tabId = sexo === 'hembra' ? 'hembras' : 'machos';
         const grid  = document.getElementById(tabId);
@@ -220,7 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Genero el HTML de una tarjeta de mascota para la vista pública (solo lectura)
     function tarjetaMascotaPub(m) {
         const S = {
             verde:    { color: '#4CAF50', label: 'Saludable',          textColor: '#2e7d32' },
@@ -234,7 +234,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ? `<img src="${fotoRawPub.startsWith('http') ? fotoRawPub : `${BASE}/${fotoRawPub}`}" alt="${m.Nombre}" class="mas-pub-foto">`
             : `<div class="mas-pub-foto mas-pub-foto-vacia">🐾</div>`;
 
-        // Solo muestro la fecha del próximo cuidado si existe
         const prox = m.prox_cuidado_tipo && m.prox_cuidado_fecha
             ? `<span class="mas-pub-prox"> ${m.prox_cuidado_tipo}: ${m.prox_cuidado_fecha.substring(0,10)}</span>`
             : '';
@@ -261,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ── MODAL DETALLE PÚBLICO ── */
-    // Cargo los datos de una mascota y abro un modal con sus cuidados y seguimientos
     window.verDetalleMascota = async function(id) {
         let m;
         try {
@@ -280,9 +278,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const s = S[m.semaforo] || S.gris;
         const hoy = new Date(); hoy.setHours(0,0,0,0);
 
-        const fotoHTML = '';
-
-        // Genero el historial de cuidados con badge de estado (vencido/próximo/ok)
         const cuidadosHTML = (m.cuidados && m.cuidados.length)
             ? m.cuidados.map(c => {
                 const fp = c.fecha_proxima ? new Date(c.fecha_proxima) : null;
@@ -302,7 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }).join('')
             : '<p class="mpub-vacio">Sin cuidados registrados.</p>';
 
-        // Muestro los últimos 5 seguimientos con color según nivel de energía
         const segHTML = (m.seguimientos && m.seguimientos.length)
             ? m.seguimientos.slice(0,5).map(sg => {
                 const energ = sg.energia != null
@@ -344,7 +338,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 .mpub-energ{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
             </style>
 
-            <!-- Header con foto, nombre y semáforo -->
             <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #eee;">
                 <div style="width:52px;height:52px;border-radius:50%;border:2.5px solid ${s.color};overflow:hidden;flex-shrink:0;background:#EEE5F5;display:flex;align-items:center;justify-content:center;">
                     ${m.fotografia || m.Fotografia
@@ -365,25 +358,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     style="background:none;border:none;font-size:20px;cursor:pointer;color:#ccc;line-height:1;padding:0 0 0 8px;">✕</button>
             </div>
 
-            <!-- Tabs Info / Cuidados / Seguimiento -->
             <div class="mpub-tabs">
                 <button class="mpub-tab on"  onclick="mpubTab(this,'mpub-info')">Info</button>
                 <button class="mpub-tab"     onclick="mpubTab(this,'mpub-cuidados')">Cuidados</button>
                 <button class="mpub-tab"     onclick="mpubTab(this,'mpub-seguimiento')">Seguimiento</button>
             </div>
 
-            <!-- Panel Info -->
             <div class="mpub-panel on" id="mpub-info">
-                ${fotoHTML}
                 ${m.Caracteristicas
                     ? `<p style="font-size:14px;color:#666;line-height:1.6;margin:0;">${m.Caracteristicas}</p>`
                     : '<p style="font-size:13px;color:#ccc;text-align:center;">Sin descripción.</p>'}
             </div>
-
-            <!-- Panel Cuidados -->
             <div class="mpub-panel" id="mpub-cuidados">${cuidadosHTML}</div>
-
-            <!-- Panel Seguimiento -->
             <div class="mpub-panel" id="mpub-seguimiento">${segHTML}</div>
         </div>`;
 
@@ -391,7 +377,6 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
     };
 
-    // Cambio el tab activo dentro del modal público
     window.mpubTab = function(btn, panelId) {
         const modal = btn.closest('[style*=fixed]');
         modal.querySelectorAll('.mpub-tab').forEach(b => b.classList.remove('on'));
@@ -401,22 +386,17 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /* ── INVENTARIO PÚBLICO ── */
-    // Cargo y muestro los artículos disponibles en el inventario (solo lectura)
     async function cargarInventario() {
         const cont = $('inv-pub-lista');
         if (!cont) return;
-
         cont.innerHTML = '<p class="inv-pub-cargando">Cargando inventario...</p>';
-
         try {
             const res  = await fetch(BASE + '/inventario');
             const data = await res.json();
-
             if (!data.length) {
                 cont.innerHTML = '<p class="inv-pub-cargando">No hay artículos en el inventario.</p>';
                 return;
             }
-
             cont.innerHTML = data.map(i => `
                 <div class="inv-pub-card">
                     <div class="inv-pub-icono">📦</div>
@@ -427,20 +407,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="inv-pub-fecha">${i.Fecha ? i.Fecha.substring(0,10) : '—'}</div>
                 </div>
             `).join('');
-
         } catch {
             cont.innerHTML = '<p class="inv-pub-cargando">Error al cargar el inventario.</p>';
         }
     }
 
     /* ── FORMULARIO DONACIÓN PÚBLICA ── */
-    // Bloqueo fechas pasadas en el campo de fecha
     const inputFecha = $('donFecha');
     if (inputFecha) inputFecha.min = new Date().toISOString().split('T')[0];
 
-    // Valido y envío la donación, queda pendiente hasta que el admin la apruebe
     document.addEventListener('click', async (e) => {
-
         if (e.target.id !== 'btnEnviarDonacion') return;
 
         const nombre      = ($('donNombre')?.value ?? '').trim();
@@ -455,7 +431,6 @@ document.addEventListener('DOMContentLoaded', () => {
             msg.textContent = 'Por favor completa todos los campos.';
             return;
         }
-
         if (isNaN(cantidad) || cantidad <= 0) {
             msg.style.color = '#D05A5A';
             msg.textContent = 'Cantidad inválida.';
@@ -468,13 +443,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ nombre, descripcion, cantidad, unidad, fecha })
             });
-
             const data = await res.json();
-
             msg.style.color = res.ok ? '#2e7d32' : '#D05A5A';
             msg.textContent = data.mensaje;
-
-            // Si se envió bien limpio el formulario
             if (res.ok) {
                 $('donNombre').value      = '';
                 $('donDescripcion').value = '';
@@ -482,13 +453,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('donUnidad').value      = '';
                 $('donFecha').value       = '';
             }
-
         } catch {
             msg.style.color = '#D05A5A';
             msg.textContent = 'Error al conectar con el servidor.';
         }
     });
-
-    
 
 });
