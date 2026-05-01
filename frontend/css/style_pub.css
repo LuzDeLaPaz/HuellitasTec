@@ -1,0 +1,1336 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+* {
+    font-family: 'Nunito', sans-serif !important; /* Fuerza Nunito en todos los elementos */
+}
+
+/* Fondo rosa claro, sin scroll */
+body {
+    background-color: #FEEBE7;
+    overflow: hidden;
+    font-family: 'Nunito', sans-serif;
+}
+
+
+/* Barra superior blanca con borde rosa */
+.titulo_figura {
+    width: 100%;            
+    height: 150px;          
+    background-color: white; 
+    border: 3px solid #FCC6BB;
+    border-radius: 10px; 
+    display: flex;                 
+    align-items: center;          
+    justify-content: space-between; 
+    padding: 0 8px 0 20px;               
+    box-sizing: border-box;
+}
+
+/* Tamaño del logo */
+.logo-img {
+    height: 140px;
+    width: auto;
+}
+
+/* Texto del título alineado a la izquierda */
+.titulo-texto {
+    text-align: left;
+    flex: 1;
+    padding-left: 20px;
+}
+
+/* Título principal en naranja grande */
+.titulo-texto h1 {
+    margin: 0;
+    font-size: 50px;
+    color: #FAA18F;
+}
+
+/* Subtítulo en mayúsculas y rosa */
+.titulo-texto p {
+    margin: 4px;
+    font-size: 20px;
+    color: #FCC6BB;
+    font-weight: bold;     
+    text-transform: uppercase;
+}
+
+
+/* Columna blanca con botón de entrar y registrarse */
+.login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0px;
+    background-color: white;
+    border: none;
+    border-radius: 16px;
+    padding: 10px 20px;
+}
+
+/* Botón transparente con ícono para ir al login */
+.login-link {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Botón naranja de "Regístrate" */
+.registro-link {
+    background-color: #FAA18F;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-weight: bold;
+    font-size: 13px;
+    padding: 5px 22px;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-top: 10px;
+    width: 100%;
+}
+
+/* Se oscurece al pasar el mouse */
+.registro-link:hover { 
+    background-color: #e8856f; 
+}
+
+/* Imagen del ícono de login */
+.login-img { 
+    width: 60px; 
+}
+
+/* Texto naranja debajo del ícono */
+.login-text {
+    color: #FAA18F;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Fondo oscuro semitransparente que cubre toda la pantalla */
+#modalLogin, #modalRegistro {
+    display: none;               /* Oculto por defecto, JS lo muestra */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+/* Caja blanca del modal con borde rosa y sombra */
+#modalLogin .modal-content,
+#modalRegistro .modal-content {
+    background-color: #fff;
+    padding: 22px 26px 20px;
+    border-radius: 20px;
+    text-align: center;
+    width: 300px;
+    box-shadow: 0 8px 32px rgba(250,161,143,0.22), 0 2px 8px rgba(0,0,0,0.10);
+    border: 1.5px solid #FCC6BB;
+}
+
+/* Título del modal en naranja */
+#modalLogin h3 { margin-bottom: 14px; color: #FAA18F; font-size: 17px; }
+
+/* Inputs con fondo crema y borde rosa */
+#modalLogin input,
+#modalRegistro input {
+    width: 100%;
+    padding: 8px 12px;
+    margin: 6px 0;
+    border-radius: 10px;
+    border: 1.5px solid #FCC6BB;
+    font-size: 14px;
+    box-sizing: border-box;
+    background: #FFF8F6;
+}
+
+/* Botones naranjas del modal */
+#modalLogin button,
+#modalRegistro button {
+    width: 100%;
+    padding: 8px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 10px;
+    background-color: #FAA18F;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* Mensaje de error en rojo (oculto por defecto) */
+#loginError {
+    color: red;
+    display: none;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+/* Botón de cerrar en gris */
+#closeModal { background-color: #ccc; color: #333; }
+
+/* Texto informativo gris claro */
+.registro-info {
+    font-size: 13px;
+    color: #aaa;
+    margin: -10px 0 10px 0;
+}
+
+/* Panel blanco del 21% con borde rosa */
+.menu_figura {
+    width: 21%;             
+    height: 505px;           
+    background-color: white;
+    border: 3px solid #FCC6BB;
+    border-radius: 5px;    
+    margin: 10px;      
+    margin-top: 11px;
+    position: relative; 
+}
+
+/* Encabezado rosado del menú */
+.menu-titulo {
+    text-align: center;           
+    background-color: #FCC6BB;   
+    color: white;                 
+    font-weight: bold;
+    font-size: 27px;             
+    padding: 10px 0;             
+    margin-bottom: 15px;        
+}
+
+/* Contenedor interno de links */
+.menu-flotante {
+    position: absolute;   
+    top: 60px;           
+    left: 10px;
+    right: 10px;          
+    background-color: white;
+    padding: 10px;
+    border-radius: 10px;
+    z-index: 10;
+}
+
+/* Lista sin viñetas */
+.menu-flotante ul { list-style: none; padding: 0; margin: 0; }
+.menu-flotante ul li { margin-bottom: 10px; }
+
+/* Link naranja con ícono */
+.menu-flotante ul li a {
+    text-decoration: none;
+    color: #FAA18F;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 25px; 
+}
+
+/* Ícono del link */
+.menu-flotante ul li a img.icono {
+    width: 25px;
+    height: 25px;
+    margin-right: 10px;
+}
+
+/* Item con transición al hacer hover */
+.menu-item { border-radius: 8px; padding: 8px; transition: 0.3s; }
+.menu-item a { text-decoration: none; display: flex; align-items: center; }
+
+/* Secciones: ocultas por defecto */
+.seccion { display: none; }
+/* Se muestra la activa al hacer clic en el menú */
+.seccion.activa { display: block; }
+/* Inicio es flex para manejar columnas */
+#inicio.activa  { display: flex; flex-direction: column; }
+
+/* Ícono con transición de color */
+.icono { width: 30px; margin-right: 8px; transition: 0.3s; }
+
+/* Colores de fondo al hacer hover en cada sección */
+.inicio:hover    { background-color: #FAA18F; }
+.mascotas:hover  { background-color: #d6b3ff; }
+.donaciones:hover { background-color: #ffb085; }
+.ubicacion:hover  { background-color: #87CEEB; }
+
+/* Texto e ícono blancos al hacer hover */
+.menu-item:hover a    { color: white; }
+.menu-item:hover .icono { filter: brightness(0) invert(1); }
+
+/* Estados activos: mismos colores que hover pero permanentes */
+.menu-item.activo.inicio    { background-color: #FAA18F; }
+.menu-item.activo.mascotas  { background-color: #d6b3ff; }
+.menu-item.activo.donaciones { background-color: #ffb085; }
+.menu-item.activo.ubicacion  { background-color: #87CEEB; }
+
+.menu-item.activo a    { color: white; }
+.menu-item.activo .icono { filter: brightness(0) invert(1); }
+
+/* Layout general: menú lateral + contenido */
+.contenedor-principal { display: flex; }
+/* El contenido ocupa el 79% restante */
+.contenido { width: 79%; display: flex; flex-direction: column; }
+
+/* ════════════════════════════════════════
+   SECCIÓN: INICIO
+════════════════════════════════════════ */
+
+/* Barra de bienvenida rosa */
+.letrero_figura {
+    width: 97%;             
+    height: 50px;           
+    background-color: #FCC6BB;
+    border: 3px solid #FAA18F;
+    border-radius: 5px;    
+    margin: 10px auto 10px 10px;
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    padding-left: 20px;
+}
+
+/* Texto blanco centrado */
+.titulo-bienvenida {
+    text-align: center;
+    color: white;                 
+    font-weight: bold;
+    font-size: 27px;             
+    margin: 0;  
+}
+
+/* Tablero principal de inicio */
+.inicio-tablero {
+    width: 97%;
+    margin: 0 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: calc(505px - 38px - 10px - 10px - 8px);
+    box-sizing: border-box;
+}
+
+/* Fila de tarjetas de acceso rápido */
+.inicio-cards-fila {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* ── Tarjetas de acceso rápido ── */
+
+/* Tarjeta con ícono + texto + flecha, animada al hover */
+.inicio-card {
+    flex: 1;
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.18s;
+    border: 2px solid transparent;
+}
+
+/* Sube ligeramente al pasar el mouse */
+.inicio-card:hover { transform: translateY(-2px); }
+
+/* Círculo decorativo semitransparente en la esquina */
+.card-deco-circle {
+    position: absolute;
+    right: -16px;
+    top: -16px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    opacity: 0.16;
+}
+
+/* Colores por tipo de tarjeta */
+.card-mascotas   { background: #F5EEFF; border-color: #DDA0DD; }  /* lila */
+.card-donaciones { background: #FFF0E6; border-color: #ffb085; }  /* naranja */
+.card-ubicacion  { background: #EAF7FB; border-color: #87CEFA; }  /* azul */
+
+/* Círculo decorativo de cada tarjeta */
+.card-mascotas .card-deco-circle   { background: #9B59B6; }
+.card-donaciones .card-deco-circle { background: #FF6B35; }
+.card-ubicacion .card-deco-circle  { background: #4DBCCD; }
+
+/* Color del texto de cada tarjeta */
+.card-mascotas .card-label   { color: #7B5EA7; }
+.card-donaciones .card-label { color: #C4622A; }
+.card-ubicacion .card-label  { color: #2A8FA5; }
+
+/* Color de la flecha de cada tarjeta */
+.card-mascotas .card-arrow   { color: #9B59B6; }
+.card-donaciones .card-arrow { color: #ffb085; }
+.card-ubicacion .card-arrow  { color: #87CEFA; }
+
+/* Emoji grande de la tarjeta */
+.card-icon  { font-size: 26px; flex-shrink: 0; z-index: 1; line-height: 1; }
+.card-info  { flex: 1; z-index: 1; }
+/* Nombre de la sección en negrita */
+.card-label { font-size: 14px; font-weight: 800; margin: 0; }
+/* Descripción corta en gris */
+.card-sub   { font-size: 11px; color: #aaa; margin: 2px 0 0; }
+
+/* Flecha que se desplaza al hover */
+.card-arrow {
+    font-size: 15px;
+    font-weight: 800;
+    z-index: 1;
+    opacity: 0.55;
+    transition: opacity 0.18s, transform 0.18s;
+}
+/* La flecha se vuelve opaca y se mueve a la derecha */
+.inicio-card:hover .card-arrow { opacity: 1; transform: translateX(3px); }
+
+/* ── Banner inferior de bienvenida ── */
+
+/* Panel que ocupa el espacio restante del tablero */
+.inicio-banner {
+    flex: 1;
+    background: #FFF5F3;
+    border: 2.5px solid #FCC6BB;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Franja superior decorativa del banner */
+.banner-strip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #FEECE8;
+    padding: 5px 14px;
+    border-bottom: 1.5px dashed #FCC6BB;
+    flex-shrink: 0;
+}
+
+/* Puntos decorativos tipo "semáforo" */
+.bstrip-dots { display: flex; gap: 4px; align-items: center; }
+.bsdot { width: 7px; height: 7px; border-radius: 50%; background: #FAA18F; display: inline-block; }
+.bsdot.d2 { background: #FCC6BB; }
+.bsdot.d3 { background: #FEECE8; border: 1.5px solid #FCC6BB; }
+
+/* Texto del banner en mayúsculas */
+.bstrip-txt {
+    font-size: 10px;
+    font-weight: 800;
+    color: #FAA18F;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    flex: 1;
+    margin-left: 4px;
+}
+
+/* Punto verde que parpadea (indica "en línea") */
+.pulse-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4CAF50;
+    animation: pdot 1.8s ease-in-out infinite;
+    flex-shrink: 0;
+}
+@keyframes pdot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.65)} }
+
+/* Texto "En línea" verde */
+.bstrip-online { font-size: 9px; color: #4CAF50; font-weight: 700; }
+
+/* Cuerpo del banner: patas + texto + estadísticas + botones */
+.banner-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 16px;
+    min-height: 0;
+}
+
+/* Columna de emojis de patas animadas */
+.banner-paw-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+/* Pata grande que flota hacia arriba y abajo */
+.paw-big { font-size: 34px; display: block; animation: pfloat 3s ease-in-out infinite; }
+/* Pata pequeña semitransparente con retraso */
+.paw-sm  { font-size: 15px; display: block; opacity: .4; animation: pfloat 3s ease-in-out .4s infinite; }
+@keyframes pfloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+
+/* Área central del banner */
+.banner-center { flex: 1; min-width: 0; }
+
+/* Frase principal del banner */
+.banner-titulo {
+    font-size: 14px;
+    font-weight: 800;
+    color: #D05A5A;
+    margin: 0 0 4px;
+    line-height: 1.3;
+}
+
+/* Descripción secundaria */
+.banner-desc {
+    font-size: 11px;
+    color: #C07070;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Fila de mini estadísticas */
+.banner-stats {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+/* Mini tarjeta de estadística */
+.bstat {
+    background: white;
+    border: 1.5px solid #FCC6BB;
+    border-radius: 8px;
+    padding: 5px 8px;
+    text-align: center;
+    flex: 1;
+}
+.bstat-icon { font-size: 14px; line-height: 1; }
+.bstat-lbl  { font-size: 9px; color: #C4756A; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; margin-top: 2px; }
+
+/* Columna de botones de acceso rápido */
+.banner-accesos {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+/* Botón de acceso rápido con borde de color */
+.quick-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 9px;
+    border: 1.5px solid;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    background: white;
+    transition: background 0.15s, transform 0.15s;
+    white-space: nowrap;
+}
+/* Se desplaza a la derecha al hacer hover */
+.quick-btn:hover { transform: translateX(2px); }
+
+/* Colores por sección */
+.qb-m { border-color: #DDA0DD; color: #7B5EA7; }  /* mascotas: lila */
+.qb-m:hover { background: #F5EEFF; }
+.qb-d { border-color: #ffb085; color: #C4622A; }  /* donaciones: naranja */
+.qb-d:hover { background: #FFF0E6; }
+.qb-u { border-color: #87CEFA; color: #2A8FA5; }  /* ubicación: azul */
+.qb-u:hover { background: #EAF7FB; }
+
+/* ════════════════════════════════════════
+   SECCIÓN: MASCOTAS (vista pública)
+════════════════════════════════════════ */
+
+/* Barra de título morada */
+.letrero_figura_mascotas {
+    width: 97%;             
+    height: 50px;           
+    background-color: #D8BFD8;
+    border: 3px solid #DDA0DD;
+    border-radius: 5px;    
+    margin: 10px auto 10px 10px;
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    padding-left: 20px;
+}
+
+/* Texto blanco del título */
+.titulo-mascotas {
+    text-align: center;
+    color: white;                 
+    font-weight: bold;
+    font-size: 27px;             
+    margin: 0;  
+}
+
+/* Panel blanco con borde morado */
+.letrero_mascotas {
+    width: 98.5%;
+    height: 440px;
+    background-color: white;
+    border: 3px solid #DDA0DD;
+    border-radius: 5px;
+    margin: 0px 10px;
+    position: relative; 
+}
+
+/* Barra de pestañas centrada */
+.mascotas-menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0;
+}
+
+/* Botón pestaña inactivo */
+.tab-btn-mas {
+    padding: 11px 38px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    border: 3.0px solid #D8CBEF;
+    background-color: white;
+    color: #D8CBEF;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* Pestaña activa: fondo lila */
+.tab-btn-mas.activo {
+    background-color: #D8CBEF;
+    color: white;
+    border: 2.0px solid #D8BFD8;
+}
+
+/* Lista vertical de mascotas con scroll */
+.mas-pub-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 8px 14px;
+    max-height: 390px;
+    overflow-y: auto;
+}
+
+/* Texto morado de carga */
+.mas-pub-cargando {
+    text-align: center;
+    color: #C9B8E8;
+    font-weight: bold;
+    margin-top: 30px;
+    font-size: 14px;
+}
+
+/* Fila de cada mascota pública */
+.mas-pub-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 6px;
+    border-bottom: 1px solid #F2EEF8;  /* Línea separadora lila */
+    cursor: pointer;
+    transition: background 0.15s;
+}
+/* Sin borde en el último elemento */
+.mas-pub-row:last-child { border-bottom: none; }
+/* Fondo gris muy claro al hacer hover */
+.mas-pub-row:hover { background: #FAFAFF; }
+
+/* Foto cuadrada de la mascota */
+.mas-pub-foto {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+    display: block;
+}
+
+/* Placeholder lila si no hay foto */
+.mas-pub-foto-vacia {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    background: #EEE5F5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+/* Columna de info: nombre + detalles */
+.mas-pub-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+/* Nombre en morado */
+.mas-pub-nombre {
+    font-size: 15px;
+    font-weight: 700;
+    color: #7B5EA7;
+    margin: 0;
+}
+
+/* Detalles secundarios en gris */
+.mas-pub-detalle {
+    font-size: 12px;
+    color: #aaa;
+    margin: 0;
+}
+
+/* Badge de estado de la mascota */
+.mas-pub-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    width: fit-content;
+    margin-top: 3px;
+}
+
+/* Punto de color del badge */
+.mas-pub-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Botón "Ver" que aparece en cada fila */
+.mas-pub-ver-btn {
+    flex-shrink: 0;
+    padding: 6px 18px;
+    border-radius: 20px;
+    background: #EEE5F5;
+    color: #9b59b6;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background 0.15s;
+}
+/* Al hacer hover en la fila, el botón se rellena de lila */
+.mas-pub-row:hover .mas-pub-ver-btn {
+    background: #D8CBEF;
+    color: white;
+}
+
+/* ════════════════════════════════════════
+   SECCIÓN: DONACIONES (vista pública)
+════════════════════════════════════════ */
+
+/* Barra de título naranja */
+.letrero_figura_donaciones {
+    width: 97%;             
+    height: 50px;           
+    background-color: #FBCBA8;
+    border: 3px solid #ffb085;
+    border-radius: 5px;    
+    margin: 10px auto 10px 10px;
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    padding-left: 20px;
+}
+
+/* Texto blanco del título */
+.titulo-donaciones {
+    text-align: center;
+    color: white;                 
+    font-weight: bold;
+    font-size: 27px;             
+    margin: 0;  
+}
+
+/* Panel blanco con borde naranja */
+.letrero_donaciones {
+    width: 98.5%;
+    height: auto;
+    min-height: 440px;
+    background-color: white;
+    border: 3px solid #ffb085;
+    border-radius: 5px;
+    margin: 0px 10px;
+    display: flex;
+    flex-direction: column; 
+}
+
+/* Pestañas: Ver inventario / Donar */
+.donaciones-menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0;
+}
+
+/* Botón de pestaña inactivo */
+.tab-btn-don {
+    padding: 11px 38px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    border: 3.0px solid #FCD8BC;
+    background-color: white;
+    color: #FCD8BC;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* Pestaña activa: fondo naranja claro */
+.tab-btn-don.activo {
+    background-color: #FCD8BC;
+    color: white;
+    border: 2.0px solid #FCD8BC;
+}
+
+/* Lista scrolleable del inventario público */
+.inv-pub-container {
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 370px;
+    overflow-y: auto;
+}
+
+/* Texto de carga en naranja claro */
+.inv-pub-cargando {
+    text-align: center;
+    color: #FBCBA8;
+    font-weight: bold;
+    margin-top: 30px;
+    font-size: 14px;
+}
+
+/* Tarjeta de ítem del inventario */
+.inv-pub-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #FFF6F0;
+    border: 2px solid #FBCBA8;
+    border-radius: 10px;
+    padding: 10px 14px;
+    transition: border-color 0.2s;
+}
+
+/* Borde más intenso al hacer hover */
+.inv-pub-card:hover { border-color: #ffb085; }
+
+/* Emoji del tipo de donación */
+.inv-pub-icono {
+    font-size: 22px;
+    width: 36px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.inv-pub-info { flex: 1; }
+
+/* Nombre del tipo de donación */
+.inv-pub-tipo {
+    font-size: 14px;
+    font-weight: bold;
+    color: #C4622A;
+    margin: 0;
+}
+
+/* Cantidad disponible */
+.inv-pub-cantidad {
+    font-size: 13px;
+    color: #D0784A;
+    margin: 2px 0 0 0;
+}
+
+/* Unidad en gris y más pequeña */
+.inv-pub-cantidad span {
+    font-weight: normal;
+    color: #aaa;
+    font-size: 12px;
+}
+
+/* Fecha en naranja claro alineada a la derecha */
+.inv-pub-fecha {
+    font-size: 12px;
+    color: #FBCBA8;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+/* ── Formulario de donación pública ── */
+
+/* Columna centrada con máximo 480px */
+.form-donacion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 30px 12px 30px;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+/* Aviso con borde rosa */
+.form-don-subtitulo {
+    font-size: 15px;
+    color: #C4622A;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    border: 1.5px solid #FBCBA8;
+    border-radius: 12px;
+    padding: 7px 18px;
+    width: 100%;
+    margin-bottom: 2px;
+}
+
+/* Campo del formulario en columna */
+.form-don-campo {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Etiqueta naranja del campo */
+.form-don-label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #D0784A;
+}
+
+/* Input con fondo crema */
+.form-don-input {
+    width: 100%;
+    padding: 8px 5px;
+    border: 2px solid #FBCBA8;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #555;
+    outline: none;
+    background-color: #FFF6F0;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+/* Borde más naranja y fondo blanco al enfocar */
+.form-don-input:focus {
+    border-color: #ffb085;
+    background-color: white;
+}
+
+/* Fila cantidad + unidad */
+.form-don-cantidad-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+/* Input numérico más ancho que el select */
+.form-don-num   { flex: 2; width: auto; }
+.form-don-select { flex: 1; width: auto; cursor: pointer; color: #888; }
+
+/* Botón naranja de enviar */
+.form-don-btn {
+    width: 104%;
+    padding: 12px;
+    background-color: #ffb085;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 3px;
+}
+
+.form-don-btn:hover { background-color: #e8925e; }
+
+/* Mensaje de confirmación/error */
+.form-don-msg {
+    font-size: 13px;
+    text-align: center;
+    min-height: 18px;
+    margin-top: -4px;
+}
+
+/* ════════════════════════════════════════
+   SECCIÓN: UBICACIÓN
+════════════════════════════════════════ */
+
+/* Barra de título azul claro */
+.letrero_figura_ubicacion {
+    width: 97%;             
+    height: 50px;           
+    background-color: #B0E0E6;
+    border: 3px solid #87CEFA;
+    border-radius: 5px;    
+    margin: 10px auto 10px 10px;
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    padding-left: 20px;
+}
+
+/* Texto blanco del título */
+.titulo-ubicacion {
+    text-align: center;
+    color: white;                 
+    font-weight: bold;
+    font-size: 27px;             
+    margin: 0;  
+}
+
+/* Panel blanco con borde azul */
+.letrero_ubicacion {
+    width: 98.5%;             
+    height: 440px;           
+    background-color: white;
+    border: 3px solid #B0E0E6;
+    border-radius: 5px;    
+    margin: 0px 10px;
+}
+
+/* Columna centrada con imagen e info */
+.ubi-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 15px auto;
+}
+
+/* Círculo azul con la imagen del refugio */
+.ubi-circle {
+    width: 160px;          
+    height: 160px;
+    border-radius: 50%;   
+    background-color: #e6f2ff; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 4px solid #b3d9ff;  
+    margin-bottom: 10px;
+}
+
+.ubi-img { height: 120px; width: auto; }
+
+/* Nombre del refugio en azul */
+.ubi-text {
+    text-align: center;
+    color: #4DBCCD;                                 
+    font-weight: bold;
+    font-size: 27px;             
+    margin: 20px 0 5px 0;  
+}
+
+/* Dirección / teléfono en azul claro */
+.ubi-info-text {
+    text-align: center;
+    font-size: 19px;
+    color: #87CEEB;
+    line-height: 1.5;
+    max-width: 530px;   
+    margin: 15px auto;    
+}
+
+@media (max-width: 768px) {
+
+    /* Scroll vertical, sin scroll horizontal, sin scrollbar visible */
+    body {
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 0;
+        background-color: #FEEBE7;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    body::-webkit-scrollbar { display: none; }
+
+    /* ── Encabezado compacto ── */
+    .titulo_figura {
+        height: auto;
+        padding: 10px 14px;
+        margin-top: -5px;
+        gap: 10px;
+        position: sticky; 
+        top: 0;
+        z-index: 10;
+        flex-wrap: nowrap;
+        border-radius: 0 0 14px 14px;
+        border: 3px solid #FCC6BB;
+        border-top: 3px solid #FCC6BB;
+        box-shadow: 0 3px 14px rgba(250,161,143,0.13);
+        width: 100%;
+        box-sizing: border-box;
+    }
+    /* Tamaños reducidos */
+    .logo-img        { height: 46px; }
+    .titulo-texto    { padding-left: 8px; }
+    .titulo-texto h1 { font-size: 20px; }
+    .titulo-texto p  { font-size: 10px; margin: 2px 0 0; }
+    .login           { flex-direction: column; align-items: center; gap: 2px; padding: 2px 4px; flex-shrink: 0; }
+    .login-img       { width: 28px; }
+    .login-text      { font-size: 9.5px; white-space: nowrap; }
+    .registro-link   { margin-top: 2px; padding: 4px 10px; font-size: 9px; border-radius: 12px; white-space: nowrap; width: auto; }
+
+    /* ── Modales más pequeños en móvil ── */
+    #modalLogin .modal-content,
+    #modalRegistro .modal-content {
+        width: 78vw;
+        max-width: 320px;
+        padding: 18px 16px 14px;
+        border-radius: 20px;
+    }
+    #modalLogin h3,
+    #modalRegistro h3 { font-size: 15px; margin-bottom: 10px; }
+    #modalLogin input,
+    #modalRegistro input { padding: 7px 10px; font-size: 13px; margin: 4px 0; }
+    #modalLogin button,
+    #modalRegistro button { padding: 7px; font-size: 13px; margin-top: 6px; border-radius: 10px; }
+    .registro-info { font-size: 11px; margin: 0 0 8px; color: #b0a0a0; }
+
+    /* Cabecera del drawer con gradiente */
+    .menu-titulo {
+        background: linear-gradient(135deg, #FAA18F, #FCC6BB);
+        color: white;
+        font-size: 16px;
+        font-weight: 900;
+        padding: 28px 20px 16px;
+        margin-bottom: 0;
+        text-align: left;
+        letter-spacing: 0.03em;
+        flex-shrink: 0;
+    }
+
+    /* Subtítulo automático */
+    .menu-titulo::after {
+        content: 'Dejando huellitas en tu corazón 🐾';
+        display: block;
+        font-size: 9px;
+        font-weight: 700;
+        color: rgba(255,255,255,0.85);
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        margin-top: 4px;
+    }
+
+    /* El menú flotante ahora es estático dentro del drawer */
+    .menu-flotante {
+        position: static;
+        top: auto; left: auto; right: auto;
+        padding: 16px 14px 20px;
+        flex: 1;
+        background: white;
+    }
+    .menu-flotante ul {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .menu-flotante ul li { margin-bottom: 0; }
+    /* Links más grandes para pantalla táctil */
+    .menu-flotante ul li a {
+        font-size: 15px;
+        padding: 12px 16px;
+        border-radius: 14px;
+        gap: 12px;
+        transition: background 0.18s, color 0.18s;
+    }
+    .menu-flotante ul li a img.icono { width: 22px; height: 22px; margin-right: 0; }
+    .icono { width: 22px; margin-right: 0; }
+
+    /* ── Layout en columna ── */
+    .contenedor-principal {
+        flex-direction: column;
+        padding: 0 8px;
+        overflow: visible;
+    }
+    .contenido {
+        width: 100%;
+        overflow: visible;
+        padding-bottom: 140px;  /* Espacio para la barra inferior */
+    }
+
+    /* Solo la sección activa es visible */
+    .seccion { display: none !important; }
+    .seccion.activa {
+        display: flex !important;
+        flex-direction: column;
+        min-height: calc(100dvh - 70px - 62px - 48px);
+    }
+    #inicio.activa { display: flex !important; flex-direction: column; }
+
+    /* ── Inicio en móvil ── */
+    .inicio-seccion { display: flex; flex-direction: column; height: auto; padding-top: 8px; }
+    #inicio.activa  { height: auto; }
+    .letrero_figura { margin: 8px 0 6px 0 !important; width: 100% !important; box-sizing: border-box; border-radius: 10px !important; }
+    .inicio-cards-wrapper { margin: 0 !important; width: 100%; box-sizing: border-box; }
+    /* Tarjetas de acceso en columna (en desktop eran fila) */
+    .inicio-cards-fila { flex-direction: column; gap: 8px; margin: 0 0 0 0 !important; }
+    /* Banner motivacional compacto */
+    .banner-motivacional {
+        margin: 7px 0 8px 0 !important;
+        width: 100% !important;
+        box-sizing: border-box;
+        min-height: auto !important;
+        height: auto !important;
+        flex: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 16px !important;
+        padding: 16px 20px 20px !important;
+        overflow: visible !important;
+    }
+
+    /* Tarjetas más compactas */
+    .inicio-card { padding: 11px 14px; border-radius: 14px; box-shadow: 0 2px 8px rgba(250,161,143,0.09); width: 100%; box-sizing: border-box; }
+    .card-icon   { font-size: 22px; }
+    .card-label  { font-size: 13px; }
+    .inicio-banner { min-height: 160px; border-radius: 14px; }
+    .banner-body   { padding: 10px 14px; gap: 10px; }
+    .paw-big       { font-size: 26px; }
+    .paw-sm        { font-size: 12px; }
+    .banner-titulo { font-size: 13px; }
+    .banner-desc   { font-size: 10px; }
+    .banner-stats  { gap: 4px; }
+    .bstat         { padding: 5px 6px; border-radius: 8px; }
+    .bstat-icon    { font-size: 12px; }
+    .bstat-lbl     { font-size: 8px; }
+    .banner-accesos { gap: 4px; }
+    .quick-btn     { padding: 7px 10px; font-size: 10px; border-radius: 8px; }
+
+    /* Letrero más pequeño */
+    .letrero_figura { height: 44px; width: 100%; margin: 6px 0 6px 0; border-radius: 10px; box-sizing: border-box; }
+    .titulo-bienvenida { font-size: 17px; }
+
+    /* ── Mascotas ── */
+    .letrero_figura_mascotas { height: 44px; width: 100%; margin: 8px 0 6px 0; border-radius: 10px; box-sizing: border-box; }
+    .titulo-mascotas  { font-size: 17px; }
+    .letrero_mascotas { width: 100%; margin: 0; border-radius: 12px; box-sizing: border-box; flex: 1; min-height: 0; }
+    .mascotas-menu    { padding: 10px 12px 6px; gap: 8px; }
+    .tab-btn-mas      { padding: 8px 0; font-size: 12px; flex: 1; text-align: center; }
+    .contenido-mascotas { max-height: none; }
+    .mas-pub-lista    { max-height: none; padding: 6px 10px; }
+    .mas-pub-row      { gap: 10px; padding: 10px 6px; }
+    .mas-pub-foto,
+    .mas-pub-foto-vacia { width: 52px; height: 52px; border-radius: 8px; }
+    .mas-pub-nombre   { font-size: 13px; }
+    .mas-pub-detalle  { font-size: 11px; }
+    .mas-pub-ver-btn  { padding: 6px 12px; font-size: 11px; border-radius: 16px; }
+
+    /* ── Donaciones ── */
+    .letrero_figura_donaciones { height: 44px; width: 100%; margin: 8px 0 6px 0; border-radius: 10px; box-sizing: border-box; }
+    .titulo-donaciones  { font-size: 17px; }
+    .letrero_donaciones { width: 100%; margin: 0; border-radius: 12px; box-sizing: border-box; flex: 1; min-height: 0; }
+    .donaciones-menu    { padding: 10px 12px 6px; gap: 8px; }
+    .tab-btn-don        { padding: 8px 0; font-size: 12px; flex: 1; text-align: center; }
+    .inv-pub-container  { max-height: none; padding: 8px 12px; gap: 8px; }
+    .inv-pub-card       { flex-wrap: wrap; gap: 6px; padding: 10px 12px; border-radius: 10px; }
+    .inv-pub-tipo       { font-size: 13px; }
+    .inv-pub-cantidad   { font-size: 12px; }
+    .form-donacion      { padding: 8px 14px 16px; gap: 8px; }
+    .form-don-subtitulo { font-size: 11px; padding: 7px 12px; border-radius: 8px; margin: 6px 0 4px 0; width: 100%; box-sizing: border-box; }
+    .form-don-campo     { gap: 4px; }
+    .form-don-label     { font-size: 12px; }
+    .form-don-input     { padding: 9px 10px; font-size: 13px; border-radius: 10px; }
+    .form-don-cantidad-row { gap: 6px; }
+    /* Si no hay input numérico: los campos se apilan en columna */
+    .form-don-cantidad-row:not(:has(.form-don-num)) { flex-direction: column; }
+    .form-don-btn       { width: 100%; border-radius: 10px; padding: 12px; }
+
+    /* ── Ubicación ── */
+    .letrero_figura_ubicacion { height: 44px; width: 100%; margin: 8px 0 6px 0; border-radius: 10px; box-sizing: border-box; }
+    .titulo-ubicacion   { font-size: 17px; }
+    .letrero_ubicacion  { width: 100%; margin: 0; border-radius: 12px; box-sizing: border-box; flex: 1; min-height: 0; }
+    .ubi-container      { margin: 20px auto 14px; }
+    .ubi-circle         { width: 110px; height: 110px; }
+    .ubi-img            { height: 80px; }
+    .ubi-text           { font-size: 20px; margin: 14px 0 4px; }
+    .ubi-info-text      { font-size: 14px; max-width: 90%; margin: 10px auto 16px; }
+
+    /* ── Ocultar menú lateral y hamburguesa en móvil ── */
+    .menu_figura   { display: none !important; }
+    .mob-hamburger { display: none !important; }
+    #mob-toggle    { display: none !important; }
+
+    /* ── Barra de navegación inferior fija ── */
+    .mob-bottom-nav {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        height: 62px;
+        background: white;
+        border-top: 2px solid #FCC6BB;
+        border-radius: 20px 20px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        z-index: 9999;
+        box-shadow: 0 -4px 20px rgba(250,161,143,0.15);
+        padding: 0 8px;
+    }
+
+    /* Botón de la barra (ícono + texto) */
+    .mob-nav-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        flex: 1;
+        padding: 6px 0;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #FCC6BB;       /* Rosa cuando inactivo */
+        font-size: 10px;
+        font-weight: 700;
+        transition: color 0.2s;
+        text-decoration: none;
+    }
+    .mob-nav-btn svg { width: 22px; height: 22px; fill: currentColor; transition: fill 0.2s; }
+
+    /* Colores activos por sección */
+    #nav-inicio.activo    { color: #FAA18F; }
+    #nav-mascotas.activo  { color: #9B59B6; }
+    #nav-donaciones.activo { color: #C4622A; }
+    #nav-ubicacion.activo  { color: #2A8FA5; }
+
+    /* Se oculta hamburguesa en móvil (usa barra inferior en su lugar) */
+    .mob-hamburger { display: none !important; }
+    #mob-toggle    { display: none !important; }
+
+    /* ── Banner motivacional tamaños compactos ── */
+    .banner-motivacional .icono-central { width: 44px !important; height: 44px !important; margin-bottom: 10px !important; }
+    .banner-motivacional .frase-1       { font-size: 18px !important; margin: 0 0 4px !important; }
+    .banner-motivacional .frase-2       { font-size: 22px !important; margin: 0 0 10px !important; }
+    .banner-motivacional .subtexto      { font-size: 11px !important; line-height: 1.5 !important; margin: 0 0 14px !important; }
+    .banner-motivacional svg.pata-deco  { width: 60px !important; height: 60px !important; }
+}

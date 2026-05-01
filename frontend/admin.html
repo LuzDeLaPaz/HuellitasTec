@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HuellitasTec - Admin</title>
+
+    <!-- Estilos del panel admin -->
+    <link rel="stylesheet" href="css/style_adm.css">
+
+    <!-- Fuente -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+
+<!-- Evita parpadeos en la pagina -->
+<body style="visibility:hidden;">
+
+    <!-- ── ENCABEZADO ── -->
+    <div class="titulo_figura">
+
+        <!-- Logo -->
+        <div class="logo">
+            <img src="imagenes/logo.png" alt="Logo" class="logo-img">
+        </div>
+
+        <!-- Nombre y eslogan -->
+        <div class="titulo-texto">
+            <h1>HuellitasTec</h1>
+            <p>Dejando huellitas en tu corazón</p>
+        </div>
+
+        <!-- Muestra el nombre del admin y botón para cerrar sesión -->
+        <div class="login">
+            <div class="usuario-info">
+                <div class="usuario-avatar">
+                    <img src="imagenes/acceso.png" alt="Usuario">
+                </div>
+                <!-- El nombre se llena dinámicamente desde admin.js -->
+                <span class="login-text" id="nombreUsuario"></span>
+            </div>
+            <button onclick="cerrarSesion()" class="btn-cerrar-sesion">Cerrar sesión</button>
+        </div>
+    </div>
+
+    <!-- ── CONTENEDOR PRINCIPAL (menú lateral + contenido) ── -->
+    <div class="contenedor-principal">
+
+        <!-- MENÚ LATERAL (solo visible en desktop) -->
+        <div class="menu_figura">
+            <div class="menu-titulo">MENÚ</div>
+            <div class="menu-flotante">
+                <ul>
+                    <!-- Cada li tiene una clase igual al id de su sección para marcarla como activa -->
+                    <li class="menu-item inicio activo">
+                        <a href="#inicio"><img src="imagenes/inicio.png" class="icono"> Inicio</a>
+                    </li>
+                    <li class="menu-item mascotas">
+                        <a href="#mascotas"><img src="imagenes/mascotas.png" class="icono"> Mascotas</a>
+                    </li>
+                    <li class="menu-item donaciones">
+                        <a href="#donaciones"><img src="imagenes/donaciones.png" class="icono"> Donaciones</a>
+                    </li>
+                    <li class="menu-item ubicacion">
+                        <a href="#ubicacion"><img src="imagenes/ubicacion.png" class="icono"> Ubicación</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ── ÁREA DE CONTENIDO (secciones) ── -->
+        <div class="contenido">
+
+            <!-- ════ SECCIÓN: INICIO ════ -->
+            <div id="inicio" class="seccion adm-activa">
+                <div class="letrero_figura">
+                    <h1 class="titulo-bienvenida">Panel de Administración</h1>
+                </div>
+
+                <div class="tablero-container">
+
+                    <!-- 4 tarjetas con contadores que se llenan desde la API -->
+                    <div class="stats-grid">
+                        <!-- Clic en la tarjeta navega a esa sección -->
+                        <div class="stat-card stat-mascotas" onclick="irA('mascotas')">
+                            <div>
+                                <p class="stat-label">Mascotas</p>
+                                <p class="stat-num" id="stat-mascotas">—</p>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-inventario" onclick="irA('donaciones')">
+                            <div>
+                                <p class="stat-label">Inventario</p>
+                                <p class="stat-num" id="stat-inventario">—</p>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-solicitudes">
+                            <div>
+                                <p class="stat-label">Solicitudes</p>
+                                <p class="stat-num" id="stat-solicitudes">—</p>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-donaciones">
+                            <div>
+                                <p class="stat-label">Donaciones</p>
+                                <p class="stat-num" id="stat-donaciones">—</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Listas en tiempo real: solicitudes de acceso y de donación -->
+                    <div class="tablero-solicitudes-fila">
+
+                        <!-- Lista de usuarios que piden acceso al sistema -->
+                        <div class="tablero-sol-card">
+                            <div class="sol-card-header">
+                                <div class="sol-dot" style="background:#FAA18F;"></div>
+                                <h3 class="sol-titulo">Solicitudes de acceso</h3>
+                            </div>
+                            <!-- Se llena con cargarSolicitudes() cada 2 segundos -->
+                            <div class="sol-lista" id="lista-solicitudes">
+                                <p class="cargando">Cargando solicitudes...</p>
+                            </div>
+                        </div>
+
+                        <!-- Lista de donaciones pendientes de aprobar -->
+                        <div class="tablero-sol-card">
+                            <div class="sol-card-header">
+                                <div class="sol-dot" style="background:#ffb085;"></div>
+                                <h3 class="sol-titulo" style="color:#ffb085;">Solicitudes de donación</h3>
+                            </div>
+                            <!-- Se llena con cargarDonaciones() cada 2 segundos -->
+                            <div class="sol-lista" id="lista-donaciones">
+                                <p class="cargando">Cargando donaciones...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ════ SECCIÓN: MASCOTAS ════ -->
+            <div id="mascotas" class="seccion" style="gap:10px; flex-direction:column;">
+                <div class="letrero_figura_mascotas">
+                    <h1 class="titulo-mascotas">Mascotas Disponibles</h1>
+                </div>
+                <div class="letrero_mascotas">
+
+                    <!-- Pestañas para filtrar por sexo -->
+                    <div class="mas-tabs-bar">
+                        <button class="tab-btn-mas activo" onclick="mostrarTab('mascotas','hembras')">Hembras</button>
+                        <button class="tab-btn-mas"        onclick="mostrarTab('mascotas','machos')">Machos</button>
+                    </div>
+
+                    <!-- Botón para abrir el formulario de nueva mascota -->
+                    <div class="mas-acciones-bar">
+                        <button class="mas-acc-btn mas-acc-agregar" onclick="abrirModalMascota()">+ Agregar mascota</button>
+                    </div>
+
+                    <!-- Las tarjetas se inyectan aquí por JS; solo una pestaña visible a la vez -->
+                    <div class="mas-cards-area">
+                        <div id="hembras" class="tab-contenido mas-grid"></div>
+                        <div id="machos"  class="tab-contenido mas-grid" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════ SECCIÓN: DONACIONES ════ -->
+            <div id="donaciones" class="seccion" style="gap:10px; flex-direction:column;">
+                <div class="letrero_figura_donaciones">
+                    <h1 class="titulo-donaciones">Donaciones</h1>
+                </div>
+                <div class="letrero_donaciones">
+
+                    <!-- Pestañas: ver inventario / registrar donación -->
+                    <div class="donaciones-menu">
+                        <button class="tab-btn-don activo" onclick="mostrarTab('donaciones','inventario')">Inventario</button>
+                        <button class="tab-btn-don"        onclick="mostrarTab('donaciones','donar')">+ Registrar donación</button>
+                    </div>
+
+                    <div class="contenido-donaciones">
+
+                        <!-- Pestaña 1: lista del inventario actual -->
+                        <div id="inventario" class="tab-contenido">
+                            <div id="inventario-admin-lista" class="inv-admin-lista-scroll">
+                                <p class="cargando">Cargando inventario...</p>
+                            </div>
+                        </div>
+
+                        <!-- Pestaña 2: formulario para registrar una donación -->
+                        <!-- Como admin, entra directo al inventario sin revisión -->
+                        <div id="donar" class="tab-contenido" style="display:none;">
+                            <div class="donar-form">
+                                <p class="donar-aviso">
+                                    Como administrador, la donación entra directo al inventario.
+                                </p>
+
+                                <!-- Nombre del donante y descripción -->
+                                <div class="donar-fila">
+                                    <div class="donar-campo">
+                                        <label class="donar-label">Nombre del donante</label>
+                                        <input type="text" id="donNombre" placeholder="Nombre" class="donar-input"
+                                            onfocus="this.classList.add('focus')" onblur="this.classList.remove('focus')">
+                                    </div>
+                                    <div class="donar-campo">
+                                        <label class="donar-label">¿Qué se donó?</label>
+                                        <input type="text" id="donDescripcion" placeholder="Descripción del artículo" class="donar-input"
+                                            onfocus="this.classList.add('focus')" onblur="this.classList.remove('focus')">
+                                    </div>
+                                </div>
+
+                                <!-- Cantidad + unidad de medida -->
+                                <label class="donar-label">Cantidad</label>
+                                <div class="donar-fila-cant">
+                                    <input type="number" id="donCantidad" placeholder="Cantidad" min="1" step="1"
+                                        class="donar-input donar-input-cant"
+                                        onfocus="this.classList.add('focus')" onblur="this.classList.remove('focus')">
+                                    <select id="donUnidad" class="donar-select"
+                                        onfocus="this.classList.add('focus')" onblur="this.classList.remove('focus')">
+                                        <option value="">Unidad</option>
+                                        <option value="kg">kg</option>
+                                        <option value="piezas">piezas</option>
+                                        <option value="bolsas">bolsas</option>
+                                        <option value="cajas">cajas</option>
+                                        <option value="litros">litros</option>
+                                        <option value="otro">otro</option>
+                                    </select>
+                                </div>
+
+                                <!-- Fecha de entrega -->
+                                <label class="donar-label">Fecha de entrega</label>
+                                <input type="date" id="donFecha" class="donar-input"
+                                    onfocus="this.classList.add('focus')" onblur="this.classList.remove('focus')">
+
+                                <!-- Botón enviar; la lógica está en admin.js -->
+                                <button id="btnEnviarDonacion" class="donar-btn">Registrar y agregar al inventario</button>
+
+                                <!-- Mensaje de resultado (éxito o error) -->
+                                <p id="donMsg" class="donar-msg"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════ SECCIÓN: UBICACIÓN ════ -->
+            <div id="ubicacion" class="seccion" style="gap:10px; flex-direction:column;">
+                <div class="letrero_figura_ubicacion">
+                    <h1 class="titulo-ubicacion">Ubicación</h1>
+                </div>
+                <div class="letrero_ubicacion">
+                    <!-- Pantalla de "próximamente" con imagen y texto informativo -->
+                    <div class="ubi-container">
+                        <div class="ubi-circle">
+                            <img src="imagenes/ubi_rep.png" alt="Ubicación" class="ubi-img">
+                        </div>
+                        <p class="ubi-text">¡Próximamente Disponible!</p>
+                        <p class="ubi-info-text">
+                            Este apartado está en desarrollo. Pronto podrás rastrear la ubicación de cada mascota en tiempo real mediante GPS.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- BARRA DE NAVEGACIÓN INFERIOR (solo en móvil) -->
+    <nav class="mob-bottom-nav">
+        <a href="#inicio" class="mob-nav-btn activo" id="adm-nav-inicio">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            Inicio
+        </a>
+        <a href="#mascotas" class="mob-nav-btn" id="nav-mascotas">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><ellipse cx="50" cy="68" rx="24" ry="20"/><ellipse cx="22" cy="46" rx="10" ry="13" transform="rotate(10 22 46)"/><ellipse cx="38" cy="34" rx="10" ry="13" transform="rotate(-5 38 34)"/><ellipse cx="62" cy="34" rx="10" ry="13" transform="rotate(5 62 34)"/><ellipse cx="78" cy="46" rx="10" ry="13" transform="rotate(-10 78 46)"/></svg>
+            Mascotas
+        </a>
+        <a href="#donaciones" class="mob-nav-btn" id="adm-nav-donaciones">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            Donaciones
+        </a>
+        <a href="#ubicacion" class="mob-nav-btn" id="adm-nav-ubicacion">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            Ubicación
+        </a>
+    </nav>
+
+    <script src="js/admin.js"></script>
+
+    <script>
+    // Guarda el último valor de cada contador para detectar cambios
+    const _statsCache = { mascotas: null, inventario: null, solicitudes: null, donaciones: null };
+
+    // Navega entre secciones (detecta si es móvil o desktop)
+    window.irA = function(seccionId) {
+        const esMobil = window.innerWidth <= 768;
+
+        if (esMobil) {
+            // Móvil: muestra la sección con clase CSS adm-activa
+            document.querySelectorAll('.seccion').forEach(s => {
+                s.classList.remove('adm-activa');
+                s.style.display = '';
+            });
+            const dest = document.getElementById(seccionId);
+            if (dest) dest.classList.add('adm-activa');
+
+            // Resalta el botón de la barra inferior
+            document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.remove('activo'));
+            const nb = document.getElementById('adm-nav-' + seccionId);
+            if (nb) nb.classList.add('activo');
+        } else {
+            // Desktop: oculta todo y muestra solo la sección destino
+            document.querySelectorAll('.seccion').forEach(s => {
+                s.style.display = 'none';
+                s.classList.remove('adm-activa');
+            });
+            const dest = document.getElementById(seccionId);
+            if (dest) dest.style.display = 'flex';
+
+            // Resalta el ítem del menú lateral
+            document.querySelectorAll('.menu-item a').forEach(a => {
+                a.parentElement.classList.remove('activo');
+                if (a.getAttribute('href') === '#' + seccionId) a.parentElement.classList.add('activo');
+            });
+        }
+
+        // Carga los datos según la sección a la que se navega
+        if (seccionId === 'mascotas')   cargarMascotas(sexoActual);
+        if (seccionId === 'donaciones') cargarInventarioAdmin();
+        if (seccionId === 'inicio')     { cargarSolicitudes(); cargarDonaciones(); cargarResumen(); }
+    };
+
+    // Conecta la barra inferior al sistema irA()
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.mob-bottom-nav a').forEach(function(a) {
+            a.addEventListener('click', function(e) {
+                e.preventDefault();
+                irA(this.getAttribute('href').replace('#', ''));
+            });
+        });
+
+        // Al cargar en desktop, solo muestra la sección "inicio"
+        if (window.innerWidth > 768) {
+            document.querySelectorAll('.seccion').forEach(s => {
+                if (s.id !== 'inicio') s.style.display = 'none';
+            });
+            const ini = document.getElementById('inicio');
+            if (ini) ini.style.display = 'flex';
+        }
+    });
+
+    // Animación de escala cuando un contador cambia de valor
+    function _flashStat(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.transition = 'none';
+        el.style.transform = 'scale(1.35)';
+        setTimeout(() => { el.style.transition = 'transform .3s'; el.style.transform = 'scale(1)'; }, 200);
+    }
+
+    // Actualiza el texto de un contador; si cambió, dispara la animación
+    function _setStat(id, valor, cacheKey) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const nuevo = String(valor);
+        if (_statsCache[cacheKey] !== null && _statsCache[cacheKey] !== nuevo) _flashStat(id);
+        _statsCache[cacheKey] = nuevo;
+        el.textContent = nuevo;
+    }
+
+    // Hace 4 peticiones en paralelo a la API y actualiza los contadores
+    async function cargarStats() {
+        try {
+            const BASE = window.location.origin;
+            const [rMas, rInv, rSol, rDon] = await Promise.all([
+                fetch(`${BASE}/mascotas`).catch(() => null),
+                fetch(`${BASE}/inventario`).catch(() => null),
+                fetch(`${BASE}/solicitudes`).catch(() => null),
+                fetch(`${BASE}/donaciones`).catch(() => null)
+            ]);
+            if (rMas?.ok) { const d = await rMas.json(); _setStat('stat-mascotas',   Array.isArray(d) ? d.length : '—', 'mascotas'); }
+            if (rInv?.ok) { const d = await rInv.json(); _setStat('stat-inventario',  Array.isArray(d) ? d.length : '—', 'inventario'); }
+            if (rSol?.ok) { const d = await rSol.json(); _setStat('stat-solicitudes', Array.isArray(d) ? d.length : '—', 'solicitudes'); }
+            if (rDon?.ok) { const d = await rDon.json(); _setStat('stat-donaciones',  Array.isArray(d) ? d.length : '—', 'donaciones'); }
+        } catch(e) { }
+    }
+
+    // Refresca stats + listas del panel de inicio
+    async function actualizarPanelInicio() {
+        await cargarStats();
+        if (typeof cargarSolicitudes === 'function') cargarSolicitudes();
+        if (typeof cargarDonaciones  === 'function') cargarDonaciones();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(actualizarPanelInicio, 800);    // Primera carga con pequeño delay
+        setInterval(actualizarPanelInicio, 2000);  // Se actualiza cada 2 segundos
+    });
+
+    // ── MODAL DE INVENTARIO ──
+    // Crea el modal dinámicamente para agregar o descontar cantidad de un artículo
+    window.abrirModalInventario = function(id, tipo, disponible) {
+
+        // Crea el fondo oscuro
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.32);
+            z-index:9999;display:flex;align-items:center;justify-content:center;`;
+
+        // HTML del modal con encabezado, tabs, input y botones
+        overlay.innerHTML = `
+        <div style="background:white;border-radius:20px;border:1.5px solid #FCC6BB;
+                    padding:20px 18px 16px;width:78%;max-width:300px;
+                    display:flex;flex-direction:column;gap:12px;
+                    box-shadow:0 8px 30px rgba(0,0,0,0.15);">
+
+            <!-- Encabezado: nombre del artículo y stock disponible -->
+            <div style="text-align:center;">
+                <div style="width:42px;height:42px;border-radius:50%;
+                            background:linear-gradient(135deg,#FAA18F,#FCC6BB);
+                            display:flex;align-items:center;justify-content:center;
+                            margin:0 auto 8px;box-shadow:0 3px 10px rgba(250,161,143,0.30);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                        <path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM4 5h16v2H4zm8 8v4H6v-4h6zm2 0h6v4h-6v-4z"/>
+                    </svg>
+                </div>
+                <p style="font-size:14px;font-weight:800;color:#C4622A;margin:0 0 3px;">${tipo}</p>
+                <p style="font-size:11px;color:#FCC6BB;margin:0;">
+                    Disponible: <strong style="color:#FAA18F;font-size:13px;">${disponible}</strong>
+                </p>
+            </div>
+
+            <!-- Tabs: Descontar / Agregar -->
+            <div style="display:flex;gap:6px;background:#FFF0E8;border-radius:12px;padding:3px;">
+                <button id="tab-desc" style="flex:1;padding:7px 0;border:none;border-radius:10px;
+                    font-size:12px;font-weight:700;cursor:pointer;
+                    background:linear-gradient(135deg,#FAA18F,#ffb085);color:white;
+                    box-shadow:0 2px 8px rgba(250,161,143,0.30);transition:all .2s;">
+                    − Descontar
+                </button>
+                <button id="tab-agr" style="flex:1;padding:7px 0;border:none;border-radius:10px;
+                    font-size:12px;font-weight:700;cursor:pointer;
+                    background:transparent;color:#D0784A;transition:all .2s;">
+                    + Agregar
+                </button>
+            </div>
+
+            <!-- Input de cantidad -->
+            <div style="display:flex;flex-direction:column;gap:4px;">
+                <label id="inv-label" style="font-size:11px;font-weight:700;color:#FAA18F;
+                    text-transform:uppercase;letter-spacing:.05em;">Cantidad a descontar</label>
+                <input type="number" id="inv-input" placeholder="0" min="0.01" step="0.01"
+                    style="width:100%;padding:10px;border:2px solid #FCC6BB;border-radius:12px;
+                           font-size:20px;font-weight:800;color:#C4622A;background:#FFF9F7;
+                           box-sizing:border-box;outline:none;text-align:center;
+                           transition:border-color .2s,background .2s;"
+                    onfocus="this.style.borderColor='#FAA18F';this.style.background='white';"
+                    onblur="this.style.borderColor='#FCC6BB';this.style.background='#FFF9F7';">
+                <!-- Mensaje de error de validación -->
+                <p id="inv-error" style="font-size:10px;color:#E05555;min-height:12px;
+                    margin:0;text-align:center;font-weight:600;"></p>
+            </div>
+
+            <!-- Botón confirmar -->
+            <button id="inv-ok" style="width:100%;padding:11px;border:none;border-radius:12px;
+                font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.02em;
+                background:linear-gradient(135deg,#FAA18F,#ffb085);color:white;
+                box-shadow:0 3px 12px rgba(250,161,143,0.35);transition:opacity .2s;">
+                Confirmar
+            </button>
+            <!-- Botón cancelar -->
+            <button id="inv-cancel" style="width:100%;padding:9px;border:1.5px solid #FCC6BB;
+                border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;
+                background:white;color:#FAA18F;transition:background .2s;">
+                Cancelar
+            </button>
+        </div>`;
+
+        document.body.appendChild(overlay);
+
+        let modoAgregar = false; // false = descontar, true = agregar
+
+        const tabDesc = overlay.querySelector('#tab-desc');
+        const tabAgr  = overlay.querySelector('#tab-agr');
+        const label   = overlay.querySelector('#inv-label');
+        const input   = overlay.querySelector('#inv-input');
+        const error   = overlay.querySelector('#inv-error');
+        const btnOk   = overlay.querySelector('#inv-ok');
+
+        const estiloActivo   = 'background:linear-gradient(135deg,#FAA18F,#ffb085);color:white;box-shadow:0 3px 10px rgba(250,161,143,0.35);';
+        const estiloInactivo = 'background:transparent;color:#D0784A;box-shadow:none;';
+
+        // Cambia al modo "descontar"
+        tabDesc.onclick = () => {
+            modoAgregar = false;
+            tabDesc.style.cssText += estiloActivo;
+            tabAgr.style.cssText  += estiloInactivo;
+            label.textContent = 'Cantidad a descontar';
+            input.value = ''; error.textContent = '';
+        };
+
+        // Cambia al modo "agregar"
+        tabAgr.onclick = () => {
+            modoAgregar = true;
+            tabAgr.style.cssText   += estiloActivo;
+            tabDesc.style.cssText  += estiloInactivo;
+            label.textContent = 'Cantidad a agregar';
+            input.value = ''; error.textContent = '';
+        };
+
+        // Cierra el modal
+        overlay.querySelector('#inv-cancel').onclick = () => overlay.remove();
+        overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+        // Valida y envía la cantidad a la API
+        btnOk.onclick = async () => {
+            const val = parseFloat(input.value);
+            error.textContent = '';
+
+            if (isNaN(val) || val <= 0) { error.textContent = 'Ingresa una cantidad válida.'; return; }
+            if (!modoAgregar && val > disponible) { error.textContent = `Solo hay ${disponible} disponibles.`; return; }
+
+            btnOk.textContent = 'Guardando...'; btnOk.disabled = true; btnOk.style.opacity = '.7';
+
+            try {
+                const BASE = window.location.origin;
+                // Elige el endpoint según el modo
+                const ep   = modoAgregar ? 'agregar' : 'descontar';
+                const res  = await fetch(`${BASE}/inventario/${ep}/${id}`,
+                    { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({cantidad:val}) });
+                const data = await res.json();
+                if (!res.ok) { error.textContent = data.mensaje||'Error.'; btnOk.textContent='Confirmar'; btnOk.disabled=false; btnOk.style.opacity='1'; return; }
+                overlay.remove();
+                toast(data.mensaje, modoAgregar ? 'verde' : 'naranja'); // Notificación visual
+                cargarInventarioAdmin();
+                cargarResumen();
+            } catch { error.textContent = 'Error al conectar.'; btnOk.textContent='Confirmar'; btnOk.disabled=false; btnOk.style.opacity='1'; }
+        };
+
+        input.focus(); // Pone el cursor en el input al abrir
+    };
+
+    // Atajo que abre el modal con los datos del artículo desde el DOM
+    window.descontarInventario = function(id, disponible) {
+        const card = document.querySelector(`[data-inv-id="${id}"]`);
+        window.abrirModalInventario(id, card ? card.dataset.invTipo : 'Artículo', disponible);
+    };
+
+    // En móvil: tocar el nombre del usuario cierra sesión directamente
+    document.addEventListener('DOMContentLoaded', function() {
+        const chip = document.querySelector('.usuario-info');
+        if (chip) {
+            chip.addEventListener('click', function() {
+                if (window.innerWidth <= 768) cerrarSesion();
+            });
+        }
+    });
+    </script>
+</body>
+</html>
