@@ -1,19 +1,21 @@
 const BASE = window.location.origin;
 
-// Escondo la página mientras verifico si el usuario está logueado
-document.body.style.visibility = 'hidden';
+// Evito el parpadeo con una transición suave en lugar de ocultar bruscamente
+document.body.style.opacity = '0';
+document.body.style.transition = 'opacity 0.15s ease';
 
 const usuarioGuardado = localStorage.getItem('nombreUsuario');
 if (!usuarioGuardado) {
-    // Si no hay sesión lo mando al inicio
     window.location.replace('/');
 } else {
-    document.body.style.visibility = 'visible';
+    // Muestro la página suavemente
+    requestAnimationFrame(() => {
+        document.body.style.opacity = '1';
+    });
     const el = document.getElementById('nombreUsuario');
     if (el) el.textContent = usuarioGuardado;
 }
 
-// Limpio el localStorage y mando al usuario de vuelta al público
 window.cerrarSesion = function () {
     localStorage.removeItem('logueado');
     localStorage.removeItem('nombreUsuario');
@@ -22,7 +24,6 @@ window.cerrarSesion = function () {
 };
 
 
-// Muestro una notificación flotante en la esquina con diferentes colores según el tipo
 function toast(msg, tipo = 'naranja') {
     const c = {
         naranja: { bg:'#FFF0E6', border:'#ffb085', text:'#C4622A' },
@@ -37,11 +38,9 @@ function toast(msg, tipo = 'naranja') {
         z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,0.10);`;
     t.textContent = msg;
     document.body.appendChild(t);
-    setTimeout(() => t.remove(), 3000); // desaparece a los 3 segundos
+    setTimeout(() => t.remove(), 3000);
 }
 
-
-// Colores y textos del semáforo de salud de cada mascota
 const SEMAFORO = {
     verde:    { color: '#4CAF50', label: 'Saludable',           textColor: '#2e7d32' },
     amarilla: { color: '#FFC107', label: 'Atención pendiente',  textColor: '#b7680b' },
@@ -49,7 +48,6 @@ const SEMAFORO = {
     gris:     { color: '#9E9E9E', label: 'Sin seguimiento',     textColor: '#555'    },
 };
 
-// Cargo los números del panel de inicio: mascotas, solicitudes, urgentes, donaciones
 async function cargarResumen() {
     try {
         const data  = await (await fetch(`${BASE}/resumen`)).json();
@@ -61,8 +59,6 @@ async function cargarResumen() {
     } catch { console.error('Error resumen'); }
 }
 
-/* ── ALERTAS ── */
-// Cargo y muestro la lista de alertas activas del sistema
 async function cargarAlertas() {
     const cont = document.getElementById('lista-alertas');
     if (!cont) return;
@@ -77,8 +73,6 @@ async function cargarAlertas() {
     } catch { cont.innerHTML = '<p class="cargando">Error.</p>'; }
 }
 
-/* ── SOLICITUDES DE ACCESO ── */
-// Traigo los usuarios pendientes de aprobación y los muestro con botones de aprobar/rechazar
 async function cargarSolicitudes() {
     const lista = document.getElementById('lista-solicitudes');
     if (!lista) return;
@@ -100,7 +94,6 @@ async function cargarSolicitudes() {
     } catch { lista.innerHTML = '<p class="cargando">Error al cargar.</p>'; }
 }
 
-// Envío la acción (aprobar o rechazar) al servidor y recargo la lista
 window.responderSolicitud = async function (id, accion) {
     try {
         await fetch(`${BASE}/solicitud/${id}`, {
@@ -113,8 +106,6 @@ window.responderSolicitud = async function (id, accion) {
 
 let sexoActual = 'hembra';
 
-/* ── MASCOTAS ── */
-// Cargo y pinto la lista de mascotas filtrando por sexo
 async function cargarMascotas(sexo) {
     sexoActual = sexo;
     const tabId = sexo === 'hembra' ? 'hembras' : 'machos';
@@ -132,10 +123,8 @@ async function cargarMascotas(sexo) {
     } catch { grid.innerHTML = '<p class="cargando">Error al cargar mascotas.</p>'; }
 }
 
-// Genero el HTML de una tarjeta de mascota con su foto, datos y botones de acción
 function tarjetaMascota(m) {
     const s = SEMAFORO[m.semaforo] || SEMAFORO.gris;
-
     const foto = m.fotografia || m.Fotografia || '';
     const fotoSrc = foto ? (foto.startsWith('http') ? foto : `${BASE}/${foto}`) : '';
     const fotoEl = fotoSrc
@@ -143,7 +132,6 @@ function tarjetaMascota(m) {
             onerror="this.outerHTML='<div class=\\'mas-row-foto mas-row-foto-vacia\\'></div>'">`
         : `<div class="mas-row-foto mas-row-foto-vacia"></div>`;
 
-    // Solo muestro la fecha del próximo cuidado si existe
     const proxInfo = m.prox_cuidado_tipo && m.prox_cuidado_fecha
         ? `<span class="mas-row-prox">📅 ${m.prox_cuidado_tipo}: ${String(m.prox_cuidado_fecha).substring(0,10)}</span>`
         : '';
@@ -170,25 +158,21 @@ function tarjetaMascota(m) {
     </div>`;
 }
 
-/* ── MODAL DETALLES DE MASCOTA ── */
-// Abro el panel de detalle de una mascota con sus cuidados, seguimientos e info
 window.abrirDetallesMascota = async function (id) {
     let m;
     try { m = await (await fetch(`${BASE}/mascota/${id}`)).json(); }
     catch { toast('Error al cargar datos','rojo'); return; }
 
     const s = SEMAFORO[m.semaforo] || SEMAFORO.gris;
-
     const overlay = document.createElement('div');
     overlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;
         background:rgba(0,0,0,0.45);z-index:9999;
         display:flex;align-items:center;justify-content:center;`;
 
-    const hoyStr      = new Date().toISOString().split('T')[0];
-    const mananaStr   = (() => { const d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().split('T')[0]; })();
+    const hoyStr       = new Date().toISOString().split('T')[0];
+    const mananaStr    = (() => { const d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().split('T')[0]; })();
     const sieteDiasStr = (() => { const d = new Date(); d.setDate(d.getDate()-7); return d.toISOString().split('T')[0]; })();
 
-    // Genero HTML de cada cuidado con su badge de estado (vencido/próximo/ok)
     const cuidadosHTML = (m.cuidados && m.cuidados.length)
         ? m.cuidados.map(c => {
             const hoy = new Date(); hoy.setHours(0,0,0,0);
@@ -220,7 +204,6 @@ window.abrirDetallesMascota = async function (id) {
         }).join('')
         : '<p class="cargando" style="margin:8px 0;">Sin cuidados registrados.</p>';
 
-    // Muestro los últimos 5 seguimientos con colores según nivel de energía
     const segHTML = (m.seguimientos && m.seguimientos.length)
         ? m.seguimientos.slice(0,5).map(sg => {
             const energ = sg.energia != null
@@ -255,7 +238,6 @@ window.abrirDetallesMascota = async function (id) {
                 padding:0;width:min(420px,88vw);max-height:90vh;overflow:hidden;
                 display:flex;flex-direction:column;
                 box-shadow:0 8px 32px rgba(0,0,0,0.18);">
-
         <style>
             .det-tabs{display:flex;border-bottom:0.5px solid #eee;}
             .det-tab{flex:1;padding:12px 0;text-align:center;font-size:13px;font-weight:700;
@@ -263,8 +245,7 @@ window.abrirDetallesMascota = async function (id) {
             .det-tab.activo{color:${s.color};border-bottom:3px solid ${s.color};}
             .det-panel{display:none;padding:12px 16px;overflow-y:auto;max-height:calc(90vh - 150px);}
             .det-panel.activo{display:block;}
-            .det-row{display:flex;align-items:flex-start;gap:8px;padding:8px 0;
-                border-bottom:0.5px solid #f5f5f5;}
+            .det-row{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:0.5px solid #f5f5f5;}
             .det-tipo{font-size:13px;font-weight:700;color:#555;margin-right:6px;}
             .det-fecha{font-size:11px;color:#aaa;margin-right:6px;}
             .det-desc{font-size:12px;color:#888;margin:4px 0 0;}
@@ -274,8 +255,7 @@ window.abrirDetallesMascota = async function (id) {
             .det-badge-verde{background:#f1f8e9;color:#2e7d32;}
             .det-energ{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px;}
             .det-btn-del{background:#fff0f0;border:1.5px solid #e74c3c;border-radius:8px;color:#c0392b;
-                font-size:12px;font-weight:700;padding:5px 12px;cursor:pointer;flex-shrink:0;
-                align-self:center;}
+                font-size:12px;font-weight:700;padding:5px 12px;cursor:pointer;flex-shrink:0;align-self:center;}
             .det-btn-del:hover{background:#ffd6d6;}
             .det-btn-edit{background:#f0f4ff;border:1.5px solid #3a7bd5;border-radius:8px;color:#3a7bd5;
                 font-size:12px;font-weight:700;padding:5px 12px;cursor:pointer;flex-shrink:0;align-self:center;}
@@ -314,7 +294,6 @@ window.abrirDetallesMascota = async function (id) {
             <button class="det-tab"        onclick="cambiarDetTab(this,'det-info')">Info</button>
         </div>
 
-        <!-- Panel cuidados con formulario para agregar uno nuevo -->
         <div class="det-panel activo" id="det-cuidados">
             <p class="det-section-title">Registrar cuidado</p>
             <div class="det-form-row">
@@ -338,7 +317,6 @@ window.abrirDetallesMascota = async function (id) {
             <div id="det-cuidados-lista">${cuidadosHTML}</div>
         </div>
 
-        <!-- Panel seguimientos con formulario para agregar uno nuevo -->
         <div class="det-panel" id="det-seguimiento">
             <p class="det-section-title">Registrar seguimiento</p>
             <div class="det-form-row">
@@ -359,7 +337,6 @@ window.abrirDetallesMascota = async function (id) {
             <div id="det-seg-lista">${segHTML}</div>
         </div>
 
-        <!-- Panel info con características de la mascota -->
         <div class="det-panel" id="det-info">
             ${m.Caracteristicas
                 ? `<p style="font-size:14px;color:#555;line-height:1.7;">${m.Caracteristicas}</p>`
@@ -368,17 +345,14 @@ window.abrirDetallesMascota = async function (id) {
     </div>`;
 
     document.body.appendChild(overlay);
-
     overlay.querySelector('#det-btn-cerrar').onclick = () => overlay.remove();
     overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
 
-    // Pongo la fecha de hoy por defecto en los campos de fecha
     const inpFecha  = overlay.querySelector('#det-c-fecha');
     const inpSFecha = overlay.querySelector('#det-s-fecha');
     if (inpFecha)  inpFecha.value  = hoyStr;
     if (inpSFecha) inpSFecha.value = hoyStr;
 
-    // Muestro u oculto el campo de fecha según el checkbox
     overlay.querySelector('#chk-c-fecha')?.addEventListener('change', e => {
         const inp = overlay.querySelector('#det-c-fecha');
         inp.style.display = e.target.checked ? 'block' : 'none';
@@ -393,7 +367,6 @@ window.abrirDetallesMascota = async function (id) {
     overlay.querySelector('#det-add-cuidado-btn').onclick = () => agregarCuidado(m.Id_mascota);
     overlay.querySelector('#det-add-seg-btn').onclick     = () => agregarSeguimiento(m.Id_mascota);
 
-    // Manejo clicks en los botones de eliminar y editar cuidados
     overlay.querySelector('#det-cuidados-lista').addEventListener('click', async e => {
         const btnDel = e.target.closest('.det-btn-del[data-tipo="cuidado"]');
         if (btnDel) {
@@ -408,12 +381,9 @@ window.abrirDetallesMascota = async function (id) {
             } catch { toast('Error al eliminar','rojo'); btnDel.textContent='✕'; btnDel.disabled=false; }
             return;
         }
-
-        // Si le dan editar abro el mini modal de edición
         const btnEdit = e.target.closest('.det-btn-edit[data-tipo="cuidado"]');
         if (btnEdit) {
-            const idCuidado = btnEdit.dataset.cuidadoId;
-            abrirEditarCuidado(idCuidado, {
+            abrirEditarCuidado(btnEdit.dataset.cuidadoId, {
                 tipo:  btnEdit.dataset.cuidadoTipo,
                 fecha: btnEdit.dataset.cuidadoFecha,
                 fprox: btnEdit.dataset.cuidadoFprox,
@@ -422,7 +392,6 @@ window.abrirDetallesMascota = async function (id) {
         }
     });
 
-    // Manejo clicks en eliminar seguimientos
     overlay.querySelector('#det-seg-lista').addEventListener('click', async e => {
         const btn = e.target.closest('.det-btn-del[data-tipo="seguimiento"]');
         if (!btn) return;
@@ -438,7 +407,6 @@ window.abrirDetallesMascota = async function (id) {
     });
 };
 
-// Cambio el tab activo dentro del modal de detalles
 window.cambiarDetTab = function (btn, panelId) {
     btn.closest('.det-tabs').querySelectorAll('.det-tab').forEach(b => b.classList.remove('activo'));
     btn.classList.add('activo');
@@ -446,11 +414,9 @@ window.cambiarDetTab = function (btn, panelId) {
     document.getElementById(panelId)?.classList.add('activo');
 };
 
-/* ── EDITAR CUIDADO ── */
-// Abro un mini modal encima del modal principal para editar un cuidado existente
 function abrirEditarCuidado(idCuidado, datos, idMascota, overlayPrincipal) {
-    const hoy     = new Date().toISOString().split('T')[0];
-    const manana  = (() => { const d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().split('T')[0]; })();
+    const hoy    = new Date().toISOString().split('T')[0];
+    const manana = (() => { const d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().split('T')[0]; })();
 
     const mini = document.createElement('div');
     mini.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;
@@ -461,56 +427,39 @@ function abrirEditarCuidado(idCuidado, datos, idMascota, overlayPrincipal) {
     <div style="background:white;border-radius:16px;border:2px solid #DDA0DD;
                 padding:16px 18px;width:min(340px,82vw);display:flex;flex-direction:column;gap:10px;">
         <p style="margin:0;font-size:15px;font-weight:700;color:#9b59b6;">Editar cuidado</p>
-
         <div>
             <label style="font-size:11px;color:#aaa;display:block;margin-bottom:3px;">Tipo *</label>
             <input id="ec-tipo" value="${datos.tipo || ''}"
-                style="width:100%;padding:9px 10px;border:1.5px solid #DDA0DD;border-radius:8px;
-                       font-size:13px;box-sizing:border-box;outline:none;">
+                style="width:100%;padding:9px 10px;border:1.5px solid #DDA0DD;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none;">
         </div>
-
         <div>
             <label style="font-size:11px;color:#aaa;display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:4px;">
-                <input type="checkbox" id="ec-chk-fecha" ${datos.fecha ? 'checked' : ''} style="cursor:pointer;">
-                Fecha realizado
+                <input type="checkbox" id="ec-chk-fecha" ${datos.fecha ? 'checked' : ''} style="cursor:pointer;"> Fecha realizado
             </label>
             <input id="ec-fecha" type="date" value="${datos.fecha || ''}" max="${hoy}"
-                style="width:100%;padding:9px 10px;border:1.5px solid #DDA0DD;border-radius:8px;
-                       font-size:13px;box-sizing:border-box;outline:none;
-                       display:${datos.fecha ? 'block' : 'none'};">
+                style="width:100%;padding:9px 10px;border:1.5px solid #DDA0DD;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none;display:${datos.fecha ? 'block' : 'none'};">
         </div>
-
         <div>
             <label style="font-size:11px;color:#aaa;display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:4px;">
-                <input type="checkbox" id="ec-chk-fprox" ${datos.fprox ? 'checked' : ''} style="cursor:pointer;">
-                Próxima fecha
+                <input type="checkbox" id="ec-chk-fprox" ${datos.fprox ? 'checked' : ''} style="cursor:pointer;"> Próxima fecha
             </label>
             <input id="ec-fprox" type="date" value="${datos.fprox || ''}" min="${manana}"
-                style="width:100%;padding:9px 10px;border:1.5px solid #DDA0DD;border-radius:8px;
-                       font-size:13px;box-sizing:border-box;outline:none;
-                       display:${datos.fprox ? 'block' : 'none'};">
+                style="width:100%;padding:9px 10px;border:1.5px solid #DDA0DD;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none;display:${datos.fprox ? 'block' : 'none'};">
         </div>
-
         <div>
             <label style="font-size:11px;color:#aaa;display:block;margin-bottom:3px;">Descripción (opcional)</label>
             <input id="ec-desc" value="${datos.desc || ''}"
-                style="width:100%;padding:9px 10px;border:1.5px solid #DDA0DD;border-radius:8px;
-                       font-size:13px;box-sizing:border-box;outline:none;">
+                style="width:100%;padding:9px 10px;border:1.5px solid #DDA0DD;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none;">
         </div>
-
         <p id="ec-error" style="color:#E05555;font-size:12px;min-height:14px;margin:0;"></p>
-
         <div style="display:flex;gap:8px;">
-            <button id="ec-cancelar" style="flex:1;padding:9px;border:1.5px solid #ddd;border-radius:8px;
-                background:#f9f9f9;color:#999;font-weight:700;cursor:pointer;font-size:13px;">Cancelar</button>
-            <button id="ec-guardar" style="flex:2;padding:9px;border:none;border-radius:8px;
-                background:#D8BFD8;color:white;font-weight:700;cursor:pointer;font-size:13px;">Guardar cambios</button>
+            <button id="ec-cancelar" style="flex:1;padding:9px;border:1.5px solid #ddd;border-radius:8px;background:#f9f9f9;color:#999;font-weight:700;cursor:pointer;font-size:13px;">Cancelar</button>
+            <button id="ec-guardar"  style="flex:2;padding:9px;border:none;border-radius:8px;background:#D8BFD8;color:white;font-weight:700;cursor:pointer;font-size:13px;">Guardar cambios</button>
         </div>
     </div>`;
 
     document.body.appendChild(mini);
 
-    // Muestro u oculto los campos de fecha según los checkboxes
     mini.querySelector('#ec-chk-fecha').addEventListener('change', e => {
         const inp = mini.querySelector('#ec-fecha');
         inp.style.display = e.target.checked ? 'block' : 'none';
@@ -525,7 +474,6 @@ function abrirEditarCuidado(idCuidado, datos, idMascota, overlayPrincipal) {
     mini.querySelector('#ec-cancelar').onclick = () => mini.remove();
     mini.onclick = e => { if (e.target === mini) mini.remove(); };
 
-    // Guardo los cambios del cuidado y recargo la vista
     mini.querySelector('#ec-guardar').onclick = async () => {
         const tipo  = mini.querySelector('#ec-tipo').value.trim();
         const fecha = mini.querySelector('#ec-chk-fecha').checked ? mini.querySelector('#ec-fecha').value || null : null;
@@ -552,15 +500,10 @@ function abrirEditarCuidado(idCuidado, datos, idMascota, overlayPrincipal) {
     };
 }
 
-// Tomo los datos del formulario de cuidado y los envío al servidor
 window.agregarCuidado = async function (idMascota) {
     const tipo  = document.getElementById('det-c-tipo')?.value.trim();
-    const fecha = document.getElementById('chk-c-fecha')?.checked
-        ? document.getElementById('det-c-fecha')?.value || null
-        : null;
-    const fprox = document.getElementById('chk-c-fprox')?.checked
-        ? document.getElementById('det-c-fprox')?.value || null
-        : null;
+    const fecha = document.getElementById('chk-c-fecha')?.checked ? document.getElementById('det-c-fecha')?.value || null : null;
+    const fprox = document.getElementById('chk-c-fprox')?.checked ? document.getElementById('det-c-fprox')?.value || null : null;
     const desc  = document.getElementById('det-c-desc')?.value.trim();
 
     if (!tipo) { toast('El tipo es obligatorio','rojo'); return; }
@@ -579,7 +522,6 @@ window.agregarCuidado = async function (idMascota) {
     } catch { toast('Error al conectar','rojo'); }
 };
 
-// Elimino un cuidado y recargo la vista de la mascota
 window.eliminarCuidado = async function (idCuidado, idMascota) {
     try {
         await fetch(`${BASE}/cuidado/${idCuidado}`, { method:'DELETE' });
@@ -590,7 +532,6 @@ window.eliminarCuidado = async function (idCuidado, idMascota) {
     } catch { toast('Error','rojo'); }
 };
 
-// Tomo los datos del formulario de seguimiento y los envío al servidor
 window.agregarSeguimiento = async function (idMascota) {
     const fecha = document.getElementById('det-s-fecha')?.value;
     const comp  = document.getElementById('det-s-comp')?.value.trim();
@@ -613,7 +554,6 @@ window.agregarSeguimiento = async function (idMascota) {
     } catch { toast('Error al conectar','rojo'); }
 };
 
-// Elimino un seguimiento de la BD
 window.eliminarSeguimiento = async function (idSeg, idMascota) {
     try {
         await fetch(`${BASE}/seguimiento/${idSeg}`, { method:'DELETE' });
@@ -623,15 +563,14 @@ window.eliminarSeguimiento = async function (idSeg, idMascota) {
     } catch { toast('Error','rojo'); }
 };
 
-/* ── MODAL AGREGAR / EDITAR MASCOTA ── */
-// Si recibo id cargo los datos existentes, si no preparo un formulario vacío para nueva
 window.abrirModalMascota = async function (id = null) {
     let mascota = { Nombre:'', Edad:'', Peso:'', Sexo:sexoActual, Caracteristicas:'', Fotografia:'' };
 
     if (id) {
-        try { mascota = await (await fetch(`${BASE}/mascota/${id}`)).json();
-            mascota.fotografia = mascota.fotografia || mascota.Fotografia || ''; }
-        catch { toast('Error cargando datos','rojo'); return; }
+        try {
+            mascota = await (await fetch(`${BASE}/mascota/${id}`)).json();
+            mascota.fotografia = mascota.fotografia || mascota.Fotografia || '';
+        } catch { toast('Error cargando datos','rojo'); return; }
     }
 
     const esNueva = !id;
@@ -643,8 +582,7 @@ window.abrirModalMascota = async function (id = null) {
     overlay.innerHTML = `
     <div style="background:white;border-radius:18px;border:2.5px solid #DDA0DD;
                 padding:18px 20px;width:min(370px,82vw);max-height:82vh;overflow-y:auto;
-                box-shadow:0 8px 32px rgba(200,100,200,0.18);
-                display:flex;flex-direction:column;gap:14px;">
+                box-shadow:0 8px 32px rgba(200,100,200,0.18);display:flex;flex-direction:column;gap:14px;">
         <style>
             .mas-m-label{font-size:12px;font-weight:700;color:#9b59b6;margin-bottom:3px;display:block;}
             .mas-m-input{width:100%;padding:10px 12px;border:2px solid #DDA0DD;border-radius:10px;
@@ -652,11 +590,9 @@ window.abrirModalMascota = async function (id = null) {
             .mas-m-input:focus{border-color:#b57bee;background:white;}
             .mas-m-row{display:flex;gap:10px;}
             .mas-m-row>div{flex:1;display:flex;flex-direction:column;}
-            .mas-btn-g{background:#D8BFD8;color:white;border:none;border-radius:10px;
-                padding:12px;font-size:15px;font-weight:700;cursor:pointer;}
+            .mas-btn-g{background:#D8BFD8;color:white;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;}
             .mas-btn-g:hover{background:#c09bc0;}
-            .mas-btn-c{background:#f5f5f5;color:#999;border:2px solid #ddd;border-radius:10px;
-                padding:12px;font-size:14px;font-weight:700;cursor:pointer;}
+            .mas-btn-c{background:#f5f5f5;color:#999;border:2px solid #ddd;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;}
         </style>
         <p style="margin:0;font-size:18px;font-weight:800;color:#9b59b6;text-align:center;">
             ${esNueva ? '+ Nueva mascota' : 'Editar mascota'}
@@ -690,22 +626,17 @@ window.abrirModalMascota = async function (id = null) {
         <div>
             <label class="mas-m-label">Fotografía</label>
             <div style="display:flex;align-items:center;gap:10px;">
-                <div id="mas-foto-thumb" style="width:52px;height:52px;border-radius:10px;
-                    border:2px solid #DDA0DD;overflow:hidden;background:#fdf5ff;
-                    display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">
+                <div id="mas-foto-thumb" style="width:52px;height:52px;border-radius:10px;border:2px solid #DDA0DD;overflow:hidden;background:#fdf5ff;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">
                     ${mascota.fotografia
                         ? `<img src="${mascota.fotografia.startsWith('http') ? mascota.fotografia : `${BASE}/${mascota.fotografia}`}" style="width:100%;height:100%;object-fit:cover;">`
                         : '🐾'}
                 </div>
                 <div style="flex:1;min-width:0;">
-                    <label style="display:inline-block;padding:7px 14px;background:#f0e6ff;
-                        border:1.5px solid #DDA0DD;border-radius:8px;cursor:pointer;
-                        font-size:12px;font-weight:700;color:#9b59b6;">
+                    <label style="display:inline-block;padding:7px 14px;background:#f0e6ff;border:1.5px solid #DDA0DD;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;color:#9b59b6;">
                         Seleccionar foto
                         <input type="file" id="mas-foto-file" accept="image/*" style="display:none;">
                     </label>
-                    <p id="mas-foto-nombre" style="font-size:11px;color:#bbb;margin:4px 0 0;
-                        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    <p id="mas-foto-nombre" style="font-size:11px;color:#bbb;margin:4px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                         ${mascota.fotografia ? mascota.fotografia.split('/').pop() : 'Sin foto'}
                     </p>
                 </div>
@@ -714,9 +645,7 @@ window.abrirModalMascota = async function (id = null) {
         <p id="mas-modal-error" style="color:#E05555;font-size:12px;text-align:center;min-height:16px;margin:0;"></p>
         <div style="display:flex;gap:10px;">
             <button class="mas-btn-c" id="mas-btn-cancelar" style="flex:1;">Cancelar</button>
-            <button class="mas-btn-g" id="mas-btn-guardar"  style="flex:2;">
-                ${esNueva ? 'Guardar mascota' : 'Guardar cambios'}
-            </button>
+            <button class="mas-btn-g" id="mas-btn-guardar"  style="flex:2;">${esNueva ? 'Guardar mascota' : 'Guardar cambios'}</button>
         </div>
     </div>`;
 
@@ -724,17 +653,15 @@ window.abrirModalMascota = async function (id = null) {
     overlay.querySelector('#mas-btn-cancelar').onclick = () => overlay.remove();
     overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
 
-    // Muestro preview de la foto cuando el usuario selecciona un archivo
     const fileInput = overlay.querySelector('#mas-foto-file');
     fileInput.addEventListener('change', () => {
         const file = fileInput.files[0];
         if (!file) return;
         overlay.querySelector('#mas-foto-nombre').textContent = file.name;
-        const thumb = overlay.querySelector('#mas-foto-thumb');
-        thumb.innerHTML = `<img src="${URL.createObjectURL(file)}" style="width:100%;height:100%;object-fit:cover;">`;
+        overlay.querySelector('#mas-foto-thumb').innerHTML =
+            `<img src="${URL.createObjectURL(file)}" style="width:100%;height:100%;object-fit:cover;">`;
     });
 
-    // Envío el formulario como FormData porque puede incluir una imagen
     overlay.querySelector('#mas-btn-guardar').onclick = async () => {
         const nombre          = overlay.querySelector('#mas-nombre').value.trim();
         const edad            = overlay.querySelector('#mas-edad').value;
@@ -746,16 +673,13 @@ window.abrirModalMascota = async function (id = null) {
         if (!nombre) { errorEl.textContent = 'El nombre es obligatorio.'; return; }
 
         const formData = new FormData();
-        formData.append('nombre',          nombre);
-        formData.append('edad',            edad || '');
-        formData.append('peso',            peso || '');
-        formData.append('sexo',            sexo);
+        formData.append('nombre', nombre);
+        formData.append('edad', edad || '');
+        formData.append('peso', peso || '');
+        formData.append('sexo', sexo);
         formData.append('caracteristicas', caracteristicas);
-        formData.append('fotoActual',      mascota.fotografia || '');
-
-        if (fileInput.files[0]) {
-            formData.append('fotografia', fileInput.files[0]);
-        }
+        formData.append('fotoActual', mascota.fotografia || '');
+        if (fileInput.files[0]) formData.append('fotografia', fileInput.files[0]);
 
         const url    = esNueva ? `${BASE}/mascota` : `${BASE}/mascota/${id}`;
         const method = esNueva ? 'POST' : 'PUT';
@@ -772,8 +696,6 @@ window.abrirModalMascota = async function (id = null) {
     };
 };
 
-/* ── CONFIRMACIÓN ELIMINAR MASCOTA ── */
-// Muestro un diálogo de confirmación antes de borrar definitivamente
 window.confirmarEliminar = function (id, nombre) {
     const overlay = document.createElement('div');
     overlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;
@@ -789,10 +711,8 @@ window.confirmarEliminar = function (id, nombre) {
         <p style="font-size:15px;font-weight:700;color:#C0392B;margin:0;">¿Eliminar a <strong>${nombre}</strong>?</p>
         <p style="font-size:13px;color:#aaa;margin:0;">Esta acción no se puede deshacer.</p>
         <div style="display:flex;gap:10px;">
-            <button id="btn-cancel-del" style="flex:1;padding:10px;border:2px solid #ddd;border-radius:10px;
-                background:#f9f9f9;color:#999;font-weight:700;cursor:pointer;font-size:14px;">Cancelar</button>
-            <button id="btn-confirm-del" style="flex:1;padding:10px;border:none;border-radius:10px;
-                background:#FF7F7F;color:white;font-weight:700;cursor:pointer;font-size:14px;">Sí, eliminar</button>
+            <button id="btn-cancel-del" style="flex:1;padding:10px;border:2px solid #ddd;border-radius:10px;background:#f9f9f9;color:#999;font-weight:700;cursor:pointer;font-size:14px;">Cancelar</button>
+            <button id="btn-confirm-del" style="flex:1;padding:10px;border:none;border-radius:10px;background:#FF7F7F;color:white;font-weight:700;cursor:pointer;font-size:14px;">Sí, eliminar</button>
         </div>
     </div>`;
 
@@ -811,8 +731,6 @@ window.confirmarEliminar = function (id, nombre) {
     };
 };
 
-/* ── SOLICITUDES DE DONACIÓN ── */
-// Cargo las donaciones pendientes de aprobación del lado público
 async function cargarDonaciones() {
     const cont = document.getElementById('lista-donaciones');
     if (!cont) return;
@@ -836,7 +754,6 @@ async function cargarDonaciones() {
     } catch { cont.innerHTML = '<p class="cargando">Error al cargar.</p>'; }
 }
 
-// Apruebo o rechazo una donación y si se aprueba se suma al inventario automáticamente
 window.responderDonacion = async function (id, accion) {
     try {
         await fetch(`${BASE}/donacion/${id}`, {
@@ -847,8 +764,6 @@ window.responderDonacion = async function (id, accion) {
     } catch { toast('Error al procesar','rojo'); }
 };
 
-/* ── INVENTARIO ADMIN ── */
-// Cargo la lista de artículos del inventario con su cantidad actual
 async function cargarInventarioAdmin() {
     const cont = document.getElementById('inventario-admin-lista');
     if (!cont) return;
@@ -868,8 +783,6 @@ async function cargarInventarioAdmin() {
     } catch { cont.innerHTML = '<p class="cargando">Error al cargar.</p>'; }
 }
 
-/* ── MODAL EDITAR INVENTARIO ── */
-// Abro un modal con tabs para descontar o agregar cantidad a un artículo del inventario
 function abrirModalInventario(id, tipo, disponible) {
     const overlay = document.createElement('div');
     overlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;
@@ -881,17 +794,12 @@ function abrirModalInventario(id, tipo, disponible) {
                 padding:28px 32px;width:340px;display:flex;flex-direction:column;gap:14px;
                 box-shadow:0 8px 32px rgba(255,176,133,0.18);">
         <style>
-            .inv-tab-btn{flex:1;padding:9px 0;border:2px solid #FBCBA8;border-radius:8px;
-                font-size:13px;font-weight:700;cursor:pointer;background:white;color:#D0784A;}
+            .inv-tab-btn{flex:1;padding:9px 0;border:2px solid #FBCBA8;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:white;color:#D0784A;}
             .inv-tab-btn.activo{background:#ffb085;color:white;border-color:#ffb085;}
-            .inv-m-input{width:100%;padding:10px 14px;border:2px solid #FBCBA8;border-radius:10px;
-                font-size:15px;background:#FFF6F0;color:#C4622A;box-sizing:border-box;outline:none;
-                text-align:center;font-weight:700;}
+            .inv-m-input{width:100%;padding:10px 14px;border:2px solid #FBCBA8;border-radius:10px;font-size:15px;background:#FFF6F0;color:#C4622A;box-sizing:border-box;outline:none;text-align:center;font-weight:700;}
             .inv-m-input:focus{border-color:#ffb085;background:white;}
-            .inv-btn-ok{width:100%;padding:11px;border:none;border-radius:10px;
-                font-size:15px;font-weight:700;cursor:pointer;background:#ffb085;color:white;}
-            .inv-btn-cancel{width:100%;padding:11px;border:2px solid #FBCBA8;border-radius:10px;
-                font-size:14px;font-weight:700;cursor:pointer;background:#FFF0E8;color:#D0784A;}
+            .inv-btn-ok{width:100%;padding:11px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;background:#ffb085;color:white;}
+            .inv-btn-cancel{width:100%;padding:11px;border:2px solid #FBCBA8;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;background:#FFF0E8;color:#D0784A;}
         </style>
         <div style="text-align:center;">
             <p style="font-size:15px;font-weight:700;color:#C4622A;margin:0;">${tipo}</p>
@@ -912,7 +820,6 @@ function abrirModalInventario(id, tipo, disponible) {
 
     document.body.appendChild(overlay);
 
-    // Controlo el modo del modal: descontar o agregar
     let modoAgregar = false;
     const tabDesc = overlay.querySelector('#tab-desc');
     const tabAgr  = overlay.querySelector('#tab-agr');
@@ -926,7 +833,6 @@ function abrirModalInventario(id, tipo, disponible) {
     overlay.querySelector('#inv-cancel').onclick = () => overlay.remove();
     overlay.onclick = e => { if (e.target===overlay) overlay.remove(); };
 
-    // Envío la operación al servidor y recargo el inventario
     btnOk.onclick = async () => {
         const val = parseFloat(input.value);
         error.textContent = '';
@@ -947,22 +853,17 @@ function abrirModalInventario(id, tipo, disponible) {
     input.focus();
 }
 
-// Busco la card del artículo y abro el modal de edición de inventario
 window.descontarInventario = function (id, disponible) {
     const card = document.querySelector(`[data-inv-id="${id}"]`);
     abrirModalInventario(id, card?card.dataset.invTipo:'Artículo', disponible);
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-
-    // Cargo todo lo necesario al abrir el panel de inicio
     cargarSolicitudes();
     cargarAlertas();
     cargarResumen();
     cargarDonaciones();
 
-    /* ── MENÚ LATERAL ── */
-    // Al hacer click en un ítem del menú muestro la sección correspondiente
     const menuItems = document.querySelectorAll('.menu-item a');
     const secciones = document.querySelectorAll('.seccion');
 
@@ -976,15 +877,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const destino = document.getElementById(id);
             if (destino) destino.style.display = 'flex';
 
-            // Cargo el contenido de la sección que se abre
             if (id === 'mascotas')   cargarMascotas(sexoActual);
             if (id === 'donaciones') cargarInventarioAdmin();
             if (id === 'inicio')     { cargarSolicitudes(); cargarDonaciones(); cargarAlertas(); cargarResumen(); }
         });
     });
 
-    /* ── SUB-TABS DENTRO DE SECCIONES ── */
-    // Cambio entre hembras/machos en mascotas o entre inventario/donaciones
     window.mostrarTab = function (seccion, tab) {
         document.querySelectorAll(`#${seccion} .tab-contenido`).forEach(c => c.style.display = 'none');
         const destino = document.getElementById(tab);
@@ -1005,12 +903,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    /* ── FORMULARIO DONACIÓN ADMIN ── */
-    // Bloqueo fechas pasadas en el campo de fecha
     const inputFecha = document.getElementById('donFecha');
     if (inputFecha) inputFecha.min = new Date().toISOString().split('T')[0];
 
-    // Valido y envío el formulario de donación directa del administrador
     document.getElementById('btnEnviarDonacion')?.addEventListener('click', async () => {
         const nombre      = (document.getElementById('donNombre')?.value      ?? '').trim();
         const descripcion = (document.getElementById('donDescripcion')?.value ?? '').trim();
@@ -1034,7 +929,6 @@ document.addEventListener('DOMContentLoaded', () => {
             msg.style.color = res.ok ? '#2e7d32' : '#D05A5A';
             msg.textContent = data.mensaje;
             if (res.ok) {
-                // Limpio el formulario si todo salió bien
                 ['donNombre','donDescripcion','donCantidad','donUnidad','donFecha']
                     .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
                 cargarInventarioAdmin(); cargarResumen();
