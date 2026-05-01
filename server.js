@@ -14,15 +14,13 @@ cloudinary.config({
 });
 
 const app  = express();
-// Render asigna el puerto por variable de entorno, nunca uses 3000 fijo
 const port = process.env.PORT || 3000;
 
-// ── Permito solicitudes desde cualquier origen y acepto JSON de hasta 10mb
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ── Rutas principales VAN ANTES del static para que tengan prioridad
+// ── Rutas HTML principales ANTES del static
 app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'frontend', 'public.html'));
 });
@@ -31,26 +29,24 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'frontend', 'admin.html'));
 });
 
-// ── UptimeRobot: endpoint de health-check para que el servidor no duerma
 app.get('/ping', (req, res) => {
   res.status(200).send('pong');
 });
 
-// ── Sirvo CSS, JS e imágenes del frontend como archivos estáticos
+// ── Archivos estáticos del frontend
 app.use(express.static(path.resolve(__dirname, 'frontend'), { index: false }));
 
-// ── Configuro multer para subir fotos directo a Cloudinary
+// ── Multer + Cloudinary
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder:         'huellitas_mascotas',       // carpeta dentro de tu cuenta Cloudinary
+    folder:          'huellitas_mascotas',
     allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 800, quality: 'auto' }],  // optimizo el tamaño automáticamente
+    transformation:  [{ width: 800, quality: 'auto' }],
     public_id: (req, file) => `mascota_${Date.now()}`
   }
 });
 
-// Solo acepto imágenes de máximo 5mb
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
@@ -111,7 +107,54 @@ app.post('/registro', (req, res) => {
   );
 });
 
-/* ── LISTAR SOLICITUDES PENDIENTES ── */
+/* ── RESUMEN DEL DASHBOARD ── */  // ✅ NUEVO
+app.get('/resumen', (req, res) => {
+  connection.query('SELECT COUNT(*) AS total FROM mascota', (e1, r1) => {
+    connection.query("SELECT COUNT(*) AS total FROM usuario WHERE estado = 'pendiente'", (e2, r2) => {
+      connection.query(
+        `SELECT COUNT(DISTINCT id_mascota) AS total FROM cuidados
+         WHERE fecha_proxima IS NOT NULL AND fecha_proxima < NOW()`,
+        (e3, r3) => {
+          connection.query(
+            'SELECT COALESCE(SUM(Cantidad), 0) AS total FROM inventario',
+            (e4, r4) => {
+              res.json({
+                mascotas:    r1?.[0]?.total ?? 0,
+                solicitudes: r2?.[0]?.total ?? 0,
+                urgentes:    r3?.[0]?.total ?? 0,
+                donado:      r4?.[0]?.total ?? 0,
+              });
+            }
+          );
+        }
+      );
+    });
+  });
+});
+
+/* ── ALERTAS ── */  // ✅ NUEVO
+app.get('/alertas', (req, res) => {
+  const sql = `
+    SELECT m.Nombre AS nombre, c.tipo AS texto,
+      CASE
+        WHEN c.fecha_proxima < NOW() THEN 'roja'
+        WHEN DATEDIFF(c.fecha_proxima, NOW()) <= 7 THEN 'amarilla'
+        ELSE 'verde'
+      END AS tipo
+    FROM cuidados c
+    JOIN mascota m ON c.id_mascota = m.Id_mascota
+    WHERE c.fecha_proxima IS NOT NULL
+      AND c.fecha_proxima <= DATE_ADD(NOW(), INTERVAL 7 DAY)
+    ORDER BY c.fecha_proxima ASC
+    LIMIT 10`;
+
+  connection.query(sql, (err, results) => {
+    if (err) return res.json([]);
+    res.json(results);
+  });
+});
+
+/* ── SOLICITUDES PENDIENTES ── */
 app.get('/solicitudes', (req, res) => {
   connection.query(
     'SELECT Id_usuario, Nombre FROM usuario WHERE estado = "pendiente"',
@@ -161,7 +204,6 @@ app.get('/mascotas', (req, res) => {
         connection.query(
           'SELECT * FROM seguimiento WHERE id_mascota IN (?) ORDER BY fecha DESC', [ids],
           (err3, seguimientos) => {
-
             const resultado = mascotas.map(m => {
               const misCuidados     = (cuidados     || []).filter(c => c.id_mascota === m.Id_mascota);
               const misSeguimientos = (seguimientos || []).filter(s => s.id_mascota === m.Id_mascota);
@@ -211,7 +253,6 @@ app.get('/mascota/:id', (req, res) => {
 
     connection.query('SELECT * FROM cuidados WHERE id_mascota = ? ORDER BY fecha DESC', [id], (err2, cuidados) => {
       connection.query('SELECT * FROM seguimiento WHERE id_mascota = ? ORDER BY fecha DESC', [id], (err3, seguimientos) => {
-
         const hoy = new Date(); hoy.setHours(0,0,0,0);
         let semaforo = 'gris';
         if ((cuidados||[]).length || (seguimientos||[]).length) semaforo = 'verde';
@@ -237,14 +278,13 @@ app.get('/mascota/:id', (req, res) => {
 });
 
 /* ── AGREGAR MASCOTA ── */
-// La foto ahora va a Cloudinary; guardamos la URL segura en la BD
 app.post('/mascota', upload.single('fotografia'), (req, res) => {
   const { nombre, edad, peso, sexo, caracteristicas } = req.body;
   if (!nombre || !sexo)
     return res.status(400).json({ mensaje: 'Nombre y Sexo son obligatorios' });
 
-  // Cloudinary devuelve req.file.path como la URL pública HTTPS
-  const fotografia = req.file ? req.file.path : null;
+  // ✅ FIX: secure_url primero, path como fallback
+  const fotografia = req.file ? (req.file.secure_url || req.file.path) : null;
 
   connection.query(
     `INSERT INTO mascota (Nombre, Edad, Peso, Sexo, Caracteristicas, Fotografia)
@@ -263,8 +303,8 @@ app.put('/mascota/:id', upload.single('fotografia'), (req, res) => {
   const id = req.params.id;
 
   if (req.file) {
-    // Nueva foto subida a Cloudinary
-    const fotografia = req.file.path;
+    // ✅ FIX: secure_url primero, path como fallback
+    const fotografia = req.file.secure_url || req.file.path;
     connection.query(
       `UPDATE mascota SET Nombre=?, Edad=?, Peso=?, Sexo=?, Caracteristicas=?, Fotografia=? WHERE Id_mascota=?`,
       [nombre, edad || null, peso || null, sexo, caracteristicas || null, fotografia, id],
@@ -274,7 +314,6 @@ app.put('/mascota/:id', upload.single('fotografia'), (req, res) => {
       }
     );
   } else {
-    // Sin foto nueva: conservo la que ya tenía
     connection.query('SELECT Fotografia FROM mascota WHERE Id_mascota = ?', [id], (err, rows) => {
       if (err || !rows.length) return res.status(500).json({ mensaje: 'Error en servidor' });
       const fotoActual = rows[0].Fotografia || null;
@@ -304,13 +343,12 @@ app.delete('/mascota/:id', (req, res) => {
 /* ── LISTAR CUIDADOS ── */
 app.get('/cuidados', (req, res) => {
   const { id_mascota } = req.query;
-
   const sql  = id_mascota
-    ? `SELECT c.*, m.Nombre AS NombreMascota
-       FROM cuidados c JOIN mascota m ON c.id_mascota = m.Id_mascota
+    ? `SELECT c.*, m.Nombre AS NombreMascota FROM cuidados c
+       JOIN mascota m ON c.id_mascota = m.Id_mascota
        WHERE c.id_mascota = ? ORDER BY c.fecha DESC`
-    : `SELECT c.*, m.Nombre AS NombreMascota
-       FROM cuidados c JOIN mascota m ON c.id_mascota = m.Id_mascota
+    : `SELECT c.*, m.Nombre AS NombreMascota FROM cuidados c
+       JOIN mascota m ON c.id_mascota = m.Id_mascota
        ORDER BY c.fecha DESC`;
   const args = id_mascota ? [id_mascota] : [];
 
@@ -336,6 +374,21 @@ app.post('/cuidado', (req, res) => {
   );
 });
 
+/* ── EDITAR CUIDADO ── */
+app.put('/cuidado/:id', (req, res) => {
+  const { tipo, fecha, fecha_proxima, descripcion } = req.body;
+  if (!tipo) return res.status(400).json({ mensaje: 'El tipo es obligatorio' });
+
+  connection.query(
+    `UPDATE cuidados SET tipo=?, fecha=?, fecha_proxima=?, descripcion=? WHERE id_cuidado=?`,
+    [tipo, fecha || null, fecha_proxima || null, descripcion || null, req.params.id],
+    (err) => {
+      if (err) return res.status(500).json({ mensaje: 'Error al actualizar' });
+      res.json({ mensaje: 'Cuidado actualizado' });
+    }
+  );
+});
+
 /* ── ELIMINAR CUIDADO ── */
 app.delete('/cuidado/:id', (req, res) => {
   connection.query(
@@ -347,31 +400,15 @@ app.delete('/cuidado/:id', (req, res) => {
   );
 });
 
-/* ── EDITAR CUIDADO ── */
-app.put('/cuidado/:id', (req, res) => {
-  const { tipo, fecha, fecha_proxima, descripcion } = req.body;
-  if (!tipo) return res.status(400).json({ mensaje: 'El tipo es obligatorio' });
-
-  connection.query(
-    `UPDATE cuidados SET tipo=?, fecha=?, fecha_proxima=?, descripcion=?
-     WHERE id_cuidado=?`,
-    [tipo, fecha || null, fecha_proxima || null, descripcion || null, req.params.id],
-    (err) => {
-      if (err) return res.status(500).json({ mensaje: 'Error al actualizar' });
-      res.json({ mensaje: 'Cuidado actualizado' });
-    }
-  );
-});
-
 /* ── LISTAR SEGUIMIENTOS ── */
 app.get('/seguimiento', (req, res) => {
   const { id_mascota } = req.query;
   const sql  = id_mascota
-    ? `SELECT s.*, m.Nombre AS NombreMascota
-       FROM seguimiento s JOIN mascota m ON s.id_mascota = m.Id_mascota
+    ? `SELECT s.*, m.Nombre AS NombreMascota FROM seguimiento s
+       JOIN mascota m ON s.id_mascota = m.Id_mascota
        WHERE s.id_mascota = ? ORDER BY s.fecha DESC`
-    : `SELECT s.*, m.Nombre AS NombreMascota
-       FROM seguimiento s JOIN mascota m ON s.id_mascota = m.Id_mascota
+    : `SELECT s.*, m.Nombre AS NombreMascota FROM seguimiento s
+       JOIN mascota m ON s.id_mascota = m.Id_mascota
        ORDER BY s.fecha DESC`;
   const args = id_mascota ? [id_mascota] : [];
 
@@ -536,7 +573,6 @@ app.post('/inventario/descontar/:id', (req, res) => {
         return res.status(400).json({ mensaje: `Solo hay ${disponible} disponibles` });
 
       const nueva = disponible - descontar;
-
       connection.query(
         'UPDATE inventario SET Cantidad = ? WHERE Id_inventario = ?', [nueva, id],
         (err2) => {
@@ -575,7 +611,7 @@ app.post('/inventario/agregar/:id', (req, res) => {
   );
 });
 
-// ── Arranco el servidor en el puerto que asigne Render
+// ── Inicio el servidor
 app.listen(port, '0.0.0.0', () => {
   console.log('');
   console.log('🐾 Servidor HuellitasTec corriendo en Render!');
