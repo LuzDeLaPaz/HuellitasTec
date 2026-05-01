@@ -37,8 +37,8 @@ app.get('/ping', (req, res) => {
 });
 
 // ── Sirvo CSS, JS e imágenes del frontend como archivos estáticos
-// IMPORTANTE: va DESPUÉS de las rutas para que / no sea interceptado
-app.use(express.static(path.join(__dirname, 'frontend')));
+// index:false evita que static intercepte la ruta / y sirva un archivo index
+app.use(express.static(path.join(__dirname, 'frontend'), { index: false }));
 
 // ── Configuro multer para subir fotos directo a Cloudinary
 const storage = new CloudinaryStorage({
