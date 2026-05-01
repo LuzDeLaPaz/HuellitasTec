@@ -240,8 +240,9 @@ window.abrirDetallesMascota = async function (id) {
         }).join('')
         : '<p class="cargando" style="margin:8px 0;">Sin seguimientos registrados.</p>';
 
-    const fotoHeader = m.fotografia || m.Fotografia
-        ? `<img src="${BASE}/${m.fotografia || m.Fotografia}"
+    const fotoRaw = m.fotografia || m.Fotografia || '';
+    const fotoHeader = fotoRaw
+        ? `<img src="${fotoRaw.startsWith('http') ? fotoRaw : `${BASE}/${fotoRaw}`}"
                style="width:48px;height:48px;border-radius:50%;object-fit:cover;
                       border:2.5px solid ${s.color};flex-shrink:0;"
                onerror="this.outerHTML='<div style=\\'width:48px;height:48px;border-radius:50%;background:${s.color}20;border:2.5px solid ${s.color};display:flex;align-items:center;justify-content:center;font-size:22px;\\'>🐾</div>'">`
@@ -693,7 +694,7 @@ window.abrirModalMascota = async function (id = null) {
                     border:2px solid #DDA0DD;overflow:hidden;background:#fdf5ff;
                     display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">
                     ${mascota.fotografia
-                        ? `<img src="${BASE}/${mascota.fotografia}" style="width:100%;height:100%;object-fit:cover;">`
+                        ? `<img src="${mascota.fotografia.startsWith('http') ? mascota.fotografia : `${BASE}/${mascota.fotografia}`}" style="width:100%;height:100%;object-fit:cover;">`
                         : '🐾'}
                 </div>
                 <div style="flex:1;min-width:0;">
